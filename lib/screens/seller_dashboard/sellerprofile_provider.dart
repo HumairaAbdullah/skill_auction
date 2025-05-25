@@ -3,36 +3,33 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:skill_auction/firebase_model/user_model.dart';
 
-class SellerProfileProvider extends ChangeNotifier{
-bool isLoading=false;
-  UserModel? _currentUser;
+class SellerProfileProvider extends ChangeNotifier {
+  bool isLoading = false;
+  List<UserModel> _currentUser=[];
 
-  UserModel? get currentUser => _currentUser;
+  List<UserModel> get currentUser => _currentUser;
 
   final DatabaseReference userRef = FirebaseDatabase.instance.ref('auctionusers');
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  Future<void> fetchCurrentUser() async {
+  Future<void> fetchSellerInfo() async {
+    final sellerId = auth.currentUser!.uid;
     isLoading = true;
     notifyListeners();
 
     try {
-      final User? firebaseUser = auth.currentUser;
-      if (firebaseUser == null) return;
-
-      final snapshot = await userRef.orderByChild('uid').equalTo(firebaseUser.uid).get();
-
+      final snapshot = await userRef.child(sellerId).get();
       if (snapshot.exists) {
-        final data = snapshot.value as Map<dynamic, dynamic>;
-        // Since we're querying by uid, there should be only one match
-        final userData = data.values.first;
-        _currentUser = UserModel.fromMap(Map<dynamic, dynamic>.from(userData));
+        final sellerInfo = UserModel.fromMap(
+          Map<String, dynamic>.from(snapshot.value as Map),
+        );
+        _currentUser = [sellerInfo];
       } else {
-        _currentUser = null;
+        _currentUser = [];
       }
     } catch (e) {
-      debugPrint('Error fetching user data: $e');
-      // You might want to show an error message to the user
+      debugPrint('Error fetching data: $e');
+      _currentUser = [];
     } finally {
       isLoading = false;
       notifyListeners();

@@ -11,7 +11,7 @@ import 'package:skill_auction/screens/seller_dashboard/gig_page.dart';
 import 'package:skill_auction/screens/seller_dashboard/seller_information.dart';
 import 'package:skill_auction/screens/seller_dashboard/skill_information.dart';
 
-class SellerHome extends StatefulWidget {
+class SellerHome extends StatefulWidget{
   const SellerHome({super.key});
 
   @override
@@ -41,28 +41,16 @@ class _SellerHomeState extends State<SellerHome> {
               children: [
                 Card(
                   child: ListTile(
-      //               leading: Builder(
-      //           builder: (context) =>
-      //         InkWell(
-      //         onTap: (){
-      //   Scaffold.of(context).openDrawer();
-      //   },
-      //     child: CircleAvatar(
-      //       radius: 40,
-      //     ),
-      //   )
-      //
-      // ),
+
                     title: PurpleblueText(data: 'HI, Seller'),
                     subtitle: PurpleText(
                       data: 'Welcome Back',
                       style: TextStyle(fontWeight: FontWeight.bold),
                       
                     ),
-                 trailing: Expanded(
-                   child: CircleAvatar(
-                     backgroundImage: AssetImage('assets/Skill Auction seller.png'),
-                   ),
+                 trailing: CircleAvatar(
+                   radius: 60,
+                   backgroundImage: AssetImage('assets/Skill Auction seller.png'),
                  ),
                   ),
                 ),

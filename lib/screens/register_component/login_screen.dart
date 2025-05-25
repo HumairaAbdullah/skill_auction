@@ -104,7 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(height: 20,),
                     CircleAvatar(
                       radius:90,
-                      backgroundImage: AssetImage('assets/skill auction.png'),
+                      backgroundImage: AssetImage('assets/skill auction new.png'),
                     ),
 
                     CustomtextField(
@@ -140,18 +140,21 @@ class _LoginScreenState extends State<LoginScreen> {
                           forgotPassword();
                         },
                         child:PurpleText(data: 'Forgot Password?'),),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF0944c8),
-                      ),
-                        onPressed: () {
-                          login();
-                        },
+                    Container(
+                      color: Color(0xFF0944c8),
+                      height: 50,
+                      width: double.infinity,
+                      child: TextButton(
 
-                        child: Text(
-                          'LOGIN',
-                          style: TextStyle(color: Colors.white),
-                        )),
+                          onPressed: () {
+                            login();
+                          },
+                      
+                          child: Text(
+                            'LOGIN',
+                            style: TextStyle(color: Colors.white),
+                          )),
+                    ),
                     // SizedBox(height: 10,),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

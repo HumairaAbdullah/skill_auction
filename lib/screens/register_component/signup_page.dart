@@ -29,6 +29,7 @@ class _SignupPageState extends State<SignupPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final phoneNumberController = TextEditingController();
+  final description=TextEditingController();
   late int roleValue;
   Future<void> saveData() async {
     try {
@@ -48,6 +49,7 @@ class _SignupPageState extends State<SignupPage> {
         uId: userId,
         firstname: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
+        description: description.text.trim(),
         email: emailController.text.trim(),
         phoneNumber: phoneNumberController.text.trim(),
         password: passwordController.text.trim(),
@@ -91,7 +93,7 @@ class _SignupPageState extends State<SignupPage> {
                       Container(
                           height: 100,
                           width: 100,
-                          child: Image.asset('assets/skill auction.png'),),
+                          child: Image.asset('assets/skill auction new.png'),),
                       Text(
                         'Create An Account',
                         style: TextStyle(
@@ -129,7 +131,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 10),
+                 // const SizedBox(height: 5),
                   CustomtextField(
                     prefix: const Icon(
                       Icons.email,
@@ -140,7 +142,19 @@ class _SignupPageState extends State<SignupPage> {
                     obscure: false,
                     
                   ),
-                  const SizedBox(height: 10),
+                 // const SizedBox(height: 5),
+                  CustomtextField(
+                    maxlines: 4,
+                    prefix: const Icon(
+                      Icons.description,
+                    ),
+                    hint: 'Describe about your self',
+                    label: const Text('About yourself'),
+                    customcontroller: description,
+                    obscure: false,
+
+                  ),
+                  //const SizedBox(height: 10),
                   CustomtextField(
                       obscure: false,
                       prefix: const Icon(
@@ -151,7 +165,7 @@ class _SignupPageState extends State<SignupPage> {
                       label: const Text('Phone Number'),
                       customcontroller: phoneNumberController,
                    ),
-                  const SizedBox(height: 10),
+                  //const SizedBox(height: 10),
                   CustomtextField(
                       prefix: const Icon(
                         Icons.lock,
@@ -176,7 +190,7 @@ class _SignupPageState extends State<SignupPage> {
                       customcontroller: passwordController,
                       ),
                   SizedBox(
-                    height: 20,
+                    height: 10,
                   ),
                   DropdownButtonFormField<String>(
                     decoration: InputDecoration(
@@ -205,34 +219,40 @@ class _SignupPageState extends State<SignupPage> {
                    
                   ),
                   SizedBox(height: 20),
-                  TextButton(
-                    style: TextButton.styleFrom(backgroundColor: Color(0xFF0944c8)),
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        await saveData();
-                        if (userRole[selectedvalue] == 'Seller') {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SellerDashboard()),
-                          );
+                  Container(
+                    color: Color(0xFF0944c8),
+                    height: 50,
+                    width: double.infinity,
+                    child: TextButton(
+                      style: TextButton.styleFrom(backgroundColor: Color(0xFF0944c8)),
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          await saveData();
+                          if (userRole[selectedvalue] == 'Seller') {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SellerDashboard()),
+                            );
+                          } else {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => BuyerScreen()),
+                            );
+                          }
                         } else {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => BuyerScreen()),
-                          );
+                          // Optional: show a general error message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                          CustomSnackbar.show(content: WhiteText(data: 'Please fix the errors in the form')
+                    
+                          ), );
                         }
-                      } else {
-                        // Optional: show a general error message
-                        ScaffoldMessenger.of(context).showSnackBar(
-                        CustomSnackbar.show(content: WhiteText(data: 'Please fix the errors in the form')
-
-                        ), );
-                      }
-                    },
-                    child:WhiteText(data: 'SIGNUP')
+                      },
+                      child:WhiteText(data: 'SIGNUP')
+                    ),
                   ),
+                  SizedBox(height: 10,),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [

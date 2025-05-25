@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skill_auction/custom_widgets/custom_color.dart';
 import 'package:skill_auction/custom_widgets/purple_text.dart';
-import 'package:skill_auction/screens/seller_dashboard/gig_page.dart';
-import 'package:skill_auction/screens/seller_dashboard/profile_page.dart';
+import 'package:skill_auction/custom_widgets/purpleblue_text.dart';
+import 'package:skill_auction/custom_widgets/white_text.dart';
+import 'package:skill_auction/screens/register_component/login_screen.dart';
 import 'package:skill_auction/screens/seller_dashboard/sellerprofile_provider.dart';
 
 class SellerInformation extends StatefulWidget {
@@ -14,9 +16,133 @@ class SellerInformation extends StatefulWidget {
 
 class _SellerInformationState extends State<SellerInformation> {
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<SellerProfileProvider>(context, listen: false)
+          .fetchSellerInfo();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-   return Scaffold(
-     body: Center(child: PurpleText(data: 'About Seller Information')),
-   );
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            SizedBox(
+              height: 15,
+            ),
+            Text(
+              'User Information',
+              style: TextStyle(
+                color: Color(
+                  0XFF8a2be1,
+                ),
+                fontSize: 20,
+              ),
+            ),
+            Consumer<SellerProfileProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                final sellerInfoList = provider.currentUser;
+                if (sellerInfoList.isEmpty) {
+                  return Center(
+                      child:
+                          const PurpleblueText(data: 'No user data available'));
+                }
+
+                // Get the first user (assuming there's only one matching user)
+                final sellerInfo = sellerInfoList.first;
+
+                return Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'About:',
+                        style: TextStyle(
+                          color: Color(0xFF0944c8),
+                          fontSize: 18,
+                        ),
+                      ),
+                      Text('${sellerInfo.description}'),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        'Email:',
+                        style: TextStyle(
+                          color: Color(0xFF0944c8),
+                          fontSize: 18,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.email),
+                          Text(
+                            '${sellerInfo.email}',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.phone),
+                          Text(
+                            'Phone:',
+                            style: TextStyle(
+                              color: Color(0xFF0944c8),
+                              fontSize: 18,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        '${sellerInfo.phoneNumber}',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+
+                      // Add more fields as needed
+                      Container(
+                        width: double.infinity,
+                        height: 50,
+                        color: Color(0xFF0944c8),
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(context,
+                                MaterialPageRoute(builder: (context) {
+                              return LoginScreen();
+                            }));
+                          },
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.logout,
+                                color: Colors.white,
+                              ),
+                              WhiteText(data: 'LogOut'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
