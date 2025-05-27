@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:skill_auction/custom_widgets/purpleblue_text.dart';
-import 'package:skill_auction/screens/seller_dashboard/chat_page.dart';
+import 'package:skill_auction/screens/seller_dashboard/bid_page.dart';
 import 'package:skill_auction/screens/seller_dashboard/gig_page.dart';
 import 'package:skill_auction/screens/seller_dashboard/order_page.dart';
 import 'package:skill_auction/screens/seller_dashboard/profile_page.dart';

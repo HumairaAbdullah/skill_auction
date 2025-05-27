@@ -34,5 +34,6 @@ class SellerProfileProvider extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+
   }
 }

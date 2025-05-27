@@ -11,7 +11,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(child: Text('Reviews will be PLace here')),
+      body: Center(child: Text('Reviews will be Place here')),
     );
   }
 }
