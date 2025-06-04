@@ -45,7 +45,7 @@ class _GigPageState extends State<GigPage> {
       gigTitle.text = skill.skillTitle;
       description.text = skill.description;
       agencyName.text = skill.agency;
-      minBid.text = skill.minBid;
+      minBid.text = skill.minBid.toString();
       delivery.text = skill.delivery;
       selectedvalue = skill.category;
       _base64image = skill.imagePath;
@@ -232,6 +232,7 @@ class _GigPageState extends State<GigPage> {
                   onPressed: () async {
                     try {
                       // Validate inputs first
+                      final bidValue = double.tryParse(minBid.text.trim());
                       if (gigTitle.text.trim().isEmpty ||
                           description.text.trim().isEmpty ||
                           selectedvalue.isEmpty ||
@@ -243,6 +244,7 @@ class _GigPageState extends State<GigPage> {
                             )
                         );
                         return;
+
                       }
 
                       // Use existing skillId if updating
@@ -255,7 +257,7 @@ class _GigPageState extends State<GigPage> {
                         skillTitle: gigTitle.text.trim(),
                         description: description.text.trim(),
                         category: selectedvalue,
-                        minBid: minBid.text.trim(),
+                        minBid: bidValue!,
                         imagePath: _base64image ?? widget.skillToUpdate?.imagePath ?? '',
                         sellerId: sellerId,
                         sellerName: sellerName,

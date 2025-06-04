@@ -5,7 +5,7 @@ class SkillModel extends ChangeNotifier {
   String description;
   String category;
   String skillId;
-  String minBid;
+  double minBid;
   String imagePath;
   String sellerName;
   String sellerId;
@@ -24,7 +24,7 @@ class SkillModel extends ChangeNotifier {
       required this.delivery,
       required this.agency});
 
-  Map<String, String> toMap() {
+  Map<String, dynamic> toMap() {
     return {
       'skillTitle': skillTitle,
       'description': description,
@@ -46,7 +46,9 @@ class SkillModel extends ChangeNotifier {
       sellerName: map['sellerName'] ?? '',
       sellerId: map['sellerId'] ?? '',
       category: map['category'] ?? '',
-      minBid: (map['minBid'] ?? '').toString(),
+      minBid: (map['minBid'] is String)
+          ? double.tryParse(map['minBid']) ?? 0.0
+          : (map['minBid'] ?? 0.0).toDouble(),
       delivery: map['delivery'] ?? '',
       imagePath: map['image'] ?? '',
       skillId: map['skillId'] ?? '',

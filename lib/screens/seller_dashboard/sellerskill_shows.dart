@@ -82,8 +82,7 @@ class _SellerSkillShowState extends State<SellerSkillShow> {
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  trailing:
-                                      Text('Min Bid: \$${skill.minBid}'),
+                                  trailing: Text('Min Bid: \$${skill.minBid}'),
                                 ),
                               ),
                               Positioned(
@@ -203,7 +202,7 @@ class _SellerSkillShowState extends State<SellerSkillShow> {
         floatingActionButton: FloatingActionButton(
           elevation: 10,
 
-         // tooltip: 'ADD Skill',
+          // tooltip: 'ADD Skill',
           onPressed: () {
             Navigator.push(
               context,
@@ -213,9 +212,10 @@ class _SellerSkillShowState extends State<SellerSkillShow> {
               Provider.of<SellerCrud>(context, listen: false).fetchData();
             });
           },
-          child:
-              Icon(Icons.add,color: Colors.white,),
-
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
 
           backgroundColor: Color(0XFF8a2be1),
         ),
