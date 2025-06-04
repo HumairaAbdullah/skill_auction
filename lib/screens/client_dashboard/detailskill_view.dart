@@ -30,7 +30,7 @@ class DetailSkillView extends StatefulWidget {
 
 class _DetailSkillViewState extends State<DetailSkillView> {
   UserModel? sellerDetails;
-  SkillModel ? skillModel;
+  SkillModel? skillModel;
   final CustomColor customColor = CustomColor();
   final DatabaseReference dbRef = FirebaseDatabase.instance.ref('sellerskills');
   final DatabaseReference bidsRef = FirebaseDatabase.instance.ref('Bidding');
@@ -80,8 +80,8 @@ class _DetailSkillViewState extends State<DetailSkillView> {
       } else {
         debugPrint('Skill not found for ID: ${widget.skillId}');
         setState(() => isLoading = false);
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Skill not found')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            CustomSnackbar.show(content: Text('Skill not found')));
       }
     } catch (e) {
       debugPrint('Error fetching skill: $e');
@@ -90,15 +90,15 @@ class _DetailSkillViewState extends State<DetailSkillView> {
           const SnackBar(content: Text('Error loading skill details')));
     }
   }
+
   Future<void> fetchSellerDetails(String sellerId) async {
     try {
-      final sellerSnapshot = await FirebaseDatabase.instance
-          .ref('users/$sellerId')
-          .get();
+      final sellerSnapshot =
+          await FirebaseDatabase.instance.ref('users/$sellerId').get();
 
       if (sellerSnapshot.exists) {
         final sellerData =
-        Map<String, dynamic>.from(sellerSnapshot.value as Map);
+            Map<String, dynamic>.from(sellerSnapshot.value as Map);
         setState(() {
           sellerDetails = UserModel.fromMap(sellerData);
         });
@@ -109,7 +109,6 @@ class _DetailSkillViewState extends State<DetailSkillView> {
       debugPrint('Error fetching seller details: $e');
     }
   }
-
 
   Stream<Map<String, dynamic>> fetchBidAmount(
       String skillId, String currentUserId) {
@@ -415,8 +414,11 @@ class _DetailSkillViewState extends State<DetailSkillView> {
                         Row(
                           children: [
                             CircleAvatar(
-                              backgroundImage: (sellerDetails?.imagePath?.isNotEmpty ?? false)
-                                  ? MemoryImage(base64Decode(sellerDetails!.imagePath!))
+                              backgroundImage: (sellerDetails
+                                          ?.imagePath?.isNotEmpty ??
+                                      false)
+                                  ? MemoryImage(
+                                      base64Decode(sellerDetails!.imagePath!))
                                   : null,
                             ),
                             SizedBox(
@@ -424,7 +426,8 @@ class _DetailSkillViewState extends State<DetailSkillView> {
                             ),
                             InkWell(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
                                   return SellerprofileForbuyers(
                                     sellerId: skillDetails!.sellerId,
                                     sellerName: skillDetails!.sellerName,
