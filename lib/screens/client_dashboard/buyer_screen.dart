@@ -87,7 +87,7 @@ class _BuyerScreenState extends State<BuyerScreen> {
       return [];
     }
   }
-  // it will fetch the amount of the bid
+
 
 
   @override

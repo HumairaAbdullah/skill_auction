@@ -12,6 +12,8 @@ import 'package:skill_auction/custom_widgets/white_text.dart';
 import 'package:skill_auction/firebase_model/sellercrud.dart';
 import 'package:skill_auction/firebase_model/skill_model.dart';
 import 'package:skill_auction/custom_widgets/custom_color.dart';
+import 'package:skill_auction/firebase_model/user_model.dart';
+import 'package:skill_auction/screens/client_dashboard/sellerprofile_forbuyers.dart';
 import 'package:skill_auction/screens/seller_dashboard/seller_information.dart';
 
 class DetailSkillView extends StatefulWidget {
@@ -27,6 +29,8 @@ class DetailSkillView extends StatefulWidget {
 }
 
 class _DetailSkillViewState extends State<DetailSkillView> {
+  UserModel? sellerDetails;
+  SkillModel ? skillModel;
   final CustomColor customColor = CustomColor();
   final DatabaseReference dbRef = FirebaseDatabase.instance.ref('sellerskills');
   final DatabaseReference bidsRef = FirebaseDatabase.instance.ref('Bidding');
@@ -44,6 +48,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
     if (widget.skillId.isEmpty) {
       debugPrint('Error: Empty skillId provided');
       setState(() => isLoading = false);
+      fetchSellerDetails(skillDetails!.sellerId);
     } else {
       fetchSkillDetail();
       initializeBidStream();
@@ -85,6 +90,26 @@ class _DetailSkillViewState extends State<DetailSkillView> {
           const SnackBar(content: Text('Error loading skill details')));
     }
   }
+  Future<void> fetchSellerDetails(String sellerId) async {
+    try {
+      final sellerSnapshot = await FirebaseDatabase.instance
+          .ref('users/$sellerId')
+          .get();
+
+      if (sellerSnapshot.exists) {
+        final sellerData =
+        Map<String, dynamic>.from(sellerSnapshot.value as Map);
+        setState(() {
+          sellerDetails = UserModel.fromMap(sellerData);
+        });
+      } else {
+        debugPrint('Seller not found for ID: $sellerId');
+      }
+    } catch (e) {
+      debugPrint('Error fetching seller details: $e');
+    }
+  }
+
 
   Stream<Map<String, dynamic>> fetchBidAmount(
       String skillId, String currentUserId) {
@@ -389,12 +414,22 @@ class _DetailSkillViewState extends State<DetailSkillView> {
                         // this will show the seller name
                         Row(
                           children: [
-                            CircleAvatar(),
+                            CircleAvatar(
+                              backgroundImage: (sellerDetails?.imagePath?.isNotEmpty ?? false)
+                                  ? MemoryImage(base64Decode(sellerDetails!.imagePath!))
+                                  : null,
+                            ),
                             SizedBox(
                               width: 4,
                             ),
                             InkWell(
                               onTap: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                  return SellerprofileForbuyers(
+                                    sellerId: skillDetails!.sellerId,
+                                    sellerName: skillDetails!.sellerName,
+                                  );
+                                }));
                               },
                               child: Text(
                                 skillDetails!.sellerName,
