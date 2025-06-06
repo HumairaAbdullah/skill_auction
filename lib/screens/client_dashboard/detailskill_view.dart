@@ -30,7 +30,7 @@ class DetailSkillView extends StatefulWidget {
 
 class _DetailSkillViewState extends State<DetailSkillView> {
   UserModel? sellerDetails;
-  SkillModel? skillModel;
+ // SkillModel? skillModel;
   final CustomColor customColor = CustomColor();
   final DatabaseReference dbRef = FirebaseDatabase.instance.ref('sellerskills');
   final DatabaseReference bidsRef = FirebaseDatabase.instance.ref('Bidding');
@@ -48,8 +48,8 @@ class _DetailSkillViewState extends State<DetailSkillView> {
     if (widget.skillId.isEmpty) {
       debugPrint('Error: Empty skillId provided');
       setState(() => isLoading = false);
-      fetchSellerDetails(skillDetails!.sellerId);
     } else {
+      debugPrint('DetailSkillView initialized with skillId: ${widget.skillId}');
       fetchSkillDetail();
       initializeBidStream();
     }
@@ -63,45 +63,118 @@ class _DetailSkillViewState extends State<DetailSkillView> {
   Future<void> fetchSkillDetail() async {
     try {
       setState(() => isLoading = true);
-      final snapshot = await dbRef.child(widget.skillId).get();
+
+      //  we can connect to the database reference
+      debugPrint('Attempting to fetch skill from path: sellerskills/${widget.skillId}');
+
+      // check if the node exists using once() method (more reliable)
+      final DatabaseEvent event = await dbRef.child(widget.skillId).once();
+      final DataSnapshot snapshot = event.snapshot;
+
+      debugPrint('Snapshot exists: ${snapshot.exists}');
+      debugPrint('Snapshot value: ${snapshot.value}');
 
       if (snapshot.exists && snapshot.value != null) {
-        // First convert to Map<dynamic, dynamic> then to Map<String, dynamic>
+        debugPrint('Raw snapshot value type: ${snapshot.value.runtimeType}');
+
         final dynamicData = snapshot.value as Map<dynamic, dynamic>;
         final data = Map<String, dynamic>.fromEntries(dynamicData.entries
             .map((e) => MapEntry(e.key.toString(), e.value)));
 
+        // Ensure skillId is included
         data['skillId'] = widget.skillId;
+
+        debugPrint('Processed skill data: $data');
 
         setState(() {
           skillDetails = SkillModel.fromMap(data);
           isLoading = false;
         });
+
+        debugPrint('SkillModel created successfully: ${skillDetails?.skillTitle}');
+
+        // Fetch seller details after skill details are loaded
+        if (skillDetails != null && skillDetails!.sellerId.isNotEmpty) {
+          await fetchSellerDetails(skillDetails!.sellerId);
+        }
       } else {
         debugPrint('Skill not found for ID: ${widget.skillId}');
+
+        // Let's also check if the skill exists anywhere in the sellerskills node
+        await debugSearchForSkill();
+
         setState(() => isLoading = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              CustomSnackbar.show(content: Text('Skill not found')));
+        }
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error fetching skill: $e');
+      debugPrint('Stack trace: $stackTrace');
+      setState(() => isLoading = false);
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            CustomSnackbar.show(content: Text('Skill not found')));
+            const SnackBar(content: Text('Error loading skill details')));
+      }
+    }
+  }
+
+  // Debug method to search for the skill in the entire sellerskills node
+  Future<void> debugSearchForSkill() async {
+    try {
+      debugPrint('Searching for skill ${widget.skillId} in entire sellerskills node...');
+      final DatabaseEvent event = await dbRef.once();
+      final DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.exists) {
+        final allSkills = snapshot.value as Map<dynamic, dynamic>;
+        debugPrint('Total skills in database: ${allSkills.length}');
+
+        // Check if our skill ID exists as a key
+        if (allSkills.containsKey(widget.skillId)) {
+          debugPrint('Found skill with matching key!');
+          debugPrint('Skill data: ${allSkills[widget.skillId]}');
+        } else {
+          debugPrint('Skill ID not found as direct key. Checking all skills...');
+
+          // Search through all skills to see if any match
+          bool found = false;
+          allSkills.forEach((key, value) {
+            if (key.toString() == widget.skillId) {
+              debugPrint('Found matching skill with key: $key');
+              debugPrint('Skill data: $value');
+              found = true;
+            }
+          });
+
+          if (!found) {
+            debugPrint('Skill ID ${widget.skillId} not found anywhere in the database');
+            debugPrint('Available skill IDs: ${allSkills.keys.toList()}');
+          }
+        }
+      } else {
+        debugPrint('No skills found in sellerskills node at all');
       }
     } catch (e) {
-      debugPrint('Error fetching skill: $e');
-      setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error loading skill details')));
+      debugPrint('Error during debug search: $e');
     }
   }
 
   Future<void> fetchSellerDetails(String sellerId) async {
     try {
-      final sellerSnapshot =
-          await FirebaseDatabase.instance.ref('users/$sellerId').get();
+      debugPrint('Fetching seller details for ID: $sellerId');
+      final DatabaseEvent event = await FirebaseDatabase.instance
+          .ref('auctionusers/$sellerId').once();
+      final DataSnapshot sellerSnapshot = event.snapshot;
 
       if (sellerSnapshot.exists) {
         final sellerData =
-            Map<String, dynamic>.from(sellerSnapshot.value as Map);
+        Map<String, dynamic>.from(sellerSnapshot.value as Map);
         setState(() {
           sellerDetails = UserModel.fromMap(sellerData);
         });
+        debugPrint('Seller details fetched successfully: ${sellerDetails?.firstname}');
       } else {
         debugPrint('Seller not found for ID: $sellerId');
       }
@@ -128,7 +201,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
         if (dynamicData != null) {
           // Convert dynamic data to proper Map format
           final bidsData = (dynamicData as Map<dynamic, dynamic>).map(
-              (key, value) =>
+                  (key, value) =>
                   MapEntry(key.toString(), value as Map<dynamic, dynamic>));
 
           final allBids = bidsData.values.map((bid) {
@@ -141,17 +214,17 @@ class _DetailSkillViewState extends State<DetailSkillView> {
           result['allBids'] = allBids;
 
           final userBids =
-              allBids.where((bid) => bid['userId'] == currentUserId).toList();
+          allBids.where((bid) => bid['userId'] == currentUserId).toList();
           if (userBids.isNotEmpty) {
             userBids.sort(
-                (a, b) => b['biddingAmount'].compareTo(a['biddingAmount']));
+                    (a, b) => b['biddingAmount'].compareTo(a['biddingAmount']));
             result['currentUserBid'] = userBids.first;
             result['currentUserHighestBid'] = userBids.first['biddingAmount'];
           }
 
           if (allBids.isNotEmpty) {
             allBids.sort(
-                (a, b) => b['biddingAmount'].compareTo(a['biddingAmount']));
+                    (a, b) => b['biddingAmount'].compareTo(a['biddingAmount']));
             result['highestBid'] = allBids.first['biddingAmount'];
           }
         }
@@ -183,7 +256,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
       }
 
       // Get current highest bid
-      final highestBidSnapshot = await FirebaseDatabase.instance
+      final highestBidEvent = await FirebaseDatabase.instance
           .ref('SkillBids/${widget.skillId}')
           .orderByChild('biddingAmount')
           .limitToLast(1)
@@ -191,8 +264,8 @@ class _DetailSkillViewState extends State<DetailSkillView> {
 
       double currentHighestBid = skillDetails!.minBid;
 
-      if (highestBidSnapshot.snapshot.exists) {
-        final data = highestBidSnapshot.snapshot.value as Map<dynamic, dynamic>;
+      if (highestBidEvent.snapshot.exists) {
+        final data = highestBidEvent.snapshot.value as Map<dynamic, dynamic>;
         data.values.forEach((bid) {
           final amount = (bid['biddingAmount'] as num).toDouble();
           if (amount > currentHighestBid) {
@@ -206,7 +279,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
         ScaffoldMessenger.of(context).showSnackBar(
           CustomSnackbar.show(
               content:
-                  Text('Your bid must be higher than \$$currentHighestBid')),
+              Text('Your bid must be higher than \$$currentHighestBid')),
         );
         return;
       }
@@ -233,7 +306,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
         'timestamp': timestamp,
       });
 
-      // Also save under skill-specific path for easier querying
+      //  save under skill-specific path for easier querying
       await FirebaseDatabase.instance
           .ref('SkillBids/${widget.skillId}/$id')
           .set({
@@ -269,7 +342,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
         suffix: IconButton(
           onPressed: saveBidAmount,
           icon: Icon(
-            FontAwesomeIcons.arrowRight,
+            Icons.send,
             color: customColor.purpleText,
           ),
         ),
@@ -326,7 +399,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
                 children: [
                   WhiteText(
                     data:
-                        'Your bid: \$${currentUserBid['biddingAmount'].toStringAsFixed(2)}',
+                    'Your bid: \$${currentUserBid['biddingAmount'].toStringAsFixed(2)}',
                   ),
                   if (currentUserHighestBid < highestBid)
                     WhiteText(
@@ -382,143 +455,154 @@ class _DetailSkillViewState extends State<DetailSkillView> {
         child: isLoading
             ? const Center(child: CircularProgressIndicator())
             : skillDetails == null
-                ? const Center(child: Text('Skill not found'))
-                : SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (skillDetails!.imagePath.isNotEmpty)
-                          Image.memory(
-                            base64Decode(skillDetails!.imagePath),
-                            height: 250,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                          ),
-                        SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 6.0),
-                          child: Text(
-                            overflow: TextOverflow.ellipsis,
-                            skillDetails!.skillTitle,
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: customColor.purpleBlue,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        // this will show the seller name
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundImage: (sellerDetails
-                                          ?.imagePath?.isNotEmpty ??
-                                      false)
-                                  ? MemoryImage(
-                                      base64Decode(sellerDetails!.imagePath!))
-                                  : null,
-                            ),
-                            SizedBox(
-                              width: 4,
-                            ),
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(context,
-                                    MaterialPageRoute(builder: (context) {
-                                  return SellerprofileForbuyers(
-                                    sellerId: skillDetails!.sellerId,
-                                    sellerName: skillDetails!.sellerName,
-                                  );
-                                }));
-                              },
-                              child: Text(
-                                skillDetails!.sellerName,
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  color: customColor.purpleText,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: customColor.purpleBlue,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          skillDetails!.description,
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 30),
-
-                        if (showBiddingField) buildBidTextField(),
-                        if (showBiddingField) const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Expanded(
-                              child: Container(
-                                height: 40,
-                                color: customColor.purpleBlue,
-                                child: Center(
-                                  child: TextButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        showBiddingField = true;
-                                      });
-                                    },
-                                    child: const Text(
-                                      "Start Bidding",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: Container(
-                                height: 40,
-                                color: customColor.purpleBlue,
-                                child: Center(
-                                  child: Text(
-                                    "Min Bid: \$${skillDetails!.minBid}",
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-
-                        const SizedBox(height: 20),
-                        StreamBuilder<Map<String, dynamic>>(
-                          stream: bidStream,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return const CircularProgressIndicator();
-                            }
-
-                            if (snapshot.hasError) {
-                              return const Text('Error loading bids');
-                            }
-
-                            return buildBidStatus(snapshot);
-                          },
-                        ),
-                      ],
+            ? const Center(child: Text('Skill not found'))
+            : SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (skillDetails!.imagePath.isNotEmpty)
+                Image.memory(
+                  base64Decode(skillDetails!.imagePath),
+                  height: 250,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.only(left: 6.0),
+                child: Text(
+                  overflow: TextOverflow.ellipsis,
+                  skillDetails!.skillTitle,
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: customColor.purpleBlue,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 5,
+              ),
+              // this will show the seller name
+              Row(
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return SellerprofileForbuyers(
+                              sellerId: skillDetails!.sellerId,
+                              sellerName: skillDetails!.sellerName,
+                            );
+                          }));
+                    },
+                    child: CircleAvatar(
+                      backgroundImage: sellerDetails?.imagePath?.isNotEmpty == true
+                          ? MemoryImage(base64Decode(sellerDetails!.imagePath!))
+                          : null,
+                      child: sellerDetails?.imagePath == null
+                          ? const Icon(Icons.person)
+                          : null,
                     ),
                   ),
+                  SizedBox(
+                    width: 4,
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) {
+                            return SellerprofileForbuyers(
+                              sellerId: skillDetails!.sellerId,
+                              sellerName: skillDetails!.sellerName,
+                            );
+                          }));
+                    },
+                    child: Text(
+                      skillDetails!.sellerName,
+                      style: TextStyle(
+                        fontSize: 17,
+                        color: customColor.purpleText,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                        decorationColor: customColor.purpleBlue,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                skillDetails!.description,
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 30),
+
+              if (showBiddingField) buildBidTextField(),
+              if (showBiddingField) const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      color: customColor.purpleBlue,
+                      child: Center(
+                        child: TextButton(
+                          onPressed: () {
+                            setState(() {
+                              showBiddingField = true;
+                            });
+                          },
+                          child: const Text(
+                            "Start Bidding",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Container(
+                      height: 40,
+                      color: customColor.purpleBlue,
+                      child: Center(
+                        child: Text(
+                          "Min Bid: \$${skillDetails!.minBid}",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+              StreamBuilder<Map<String, dynamic>>(
+                stream: bidStream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  if (snapshot.hasError) {
+                    return const Text('Error loading bids');
+                  }
+
+                  return buildBidStatus(snapshot);
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

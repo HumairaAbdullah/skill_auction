@@ -73,6 +73,7 @@ class _SellerprofileForbuyersState extends State<SellerprofileForbuyers> {
       data.forEach((key, value) {
         if (value != null) {
           final skillMap = Map<String, dynamic>.from(value as Map);
+          skillMap['skillId'] = key;// key for skill
           loadedSkills.add(SkillModel.fromMap(skillMap));
         }
       });
@@ -122,14 +123,23 @@ class _SellerprofileForbuyersState extends State<SellerprofileForbuyers> {
   Widget _buildSkillCard(SkillModel skill) {
     return InkWell(
 
-      onTap: () =>
-          Navigator.push(
+        onTap: () {
 
-        context,
-        MaterialPageRoute(
-          builder: (context) => DetailSkillView(skillId: skill.skillId),
-        ),
-      ),
+          debugPrint('Navigating to skill with ID: ${skill.skillId}');
+          if (skill.skillId.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Invalid skill ID')),
+            );
+            return;
+          }
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DetailSkillView(skillId:skill.skillId),
+            ),
+          );
+        },
       child: Card(
         margin: const EdgeInsets.symmetric(vertical: 8),
         child: Padding(
@@ -201,10 +211,10 @@ class _SellerprofileForbuyersState extends State<SellerprofileForbuyers> {
             _buildSellerProfile(),
             const SizedBox(height: 24),
             Text(
-              'Skills Offered',
+              'Skills Offered  '
+                  ,
               style: TextStyle(
-                decorationColor: _customColor.purpleText,
-                decoration: TextDecoration.underline,
+
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: _customColor.purpleBlue,

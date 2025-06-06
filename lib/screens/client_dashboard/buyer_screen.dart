@@ -198,40 +198,47 @@ class _BuyerScreenState extends State<BuyerScreen> {
                               ],
                             ),
                           ),
-                          Column(
-                            textDirection: TextDirection.ltr,
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                overflow: TextOverflow.ellipsis,
-                                skill.skillTitle,
-                                style: TextStyle(
-                                  color: customColor.purpleText,
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Text(
+                                    overflow: TextOverflow.ellipsis,
+                                    skill.skillTitle,
+                                    style: TextStyle(
+                                      color: customColor.purpleText,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                Text(
-                                  'MinBid From:',
-                                  style:
-                                      TextStyle(color: customColor.purpleBlue),
-                                ),
-                                SizedBox(
-                                  width: 15,
-                                ),
-                                Text(
-                                  overflow: TextOverflow.ellipsis,
-                                  '${skill.minBid}',
-                                  style: TextStyle(
-                                    color: customColor.purpleText,
+                          Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text(
+                                    overflow: TextOverflow.ellipsis,
+                                    'MinBid From:',
+                                    style:
+                                        TextStyle(color: customColor.purpleBlue),
                                   ),
-                                ),
-                              ]),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  Text(
+                                    overflow: TextOverflow.ellipsis,
+                                    '\$${skill.minBid}',
+                                    style: TextStyle(
+                                      color: customColor.purpleText,
+                                    ),
+                                  ),
+                                ]),
+                          ),
                         ],
                       ),
                     ),
