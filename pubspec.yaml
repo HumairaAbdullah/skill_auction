@@ -47,6 +47,7 @@ dependencies:
   image_picker: any
   file_picker: any
   fl_chart: any
+  carousel_slider: any
 
 
 

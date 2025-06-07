@@ -8,6 +8,7 @@ import 'package:skill_auction/firebase_model/sellercrud.dart';
 import 'package:skill_auction/screens/admin_dashboard/admin_dashboard.dart';
 import 'package:skill_auction/screens/client_dashboard/buyer_screen.dart';
 import 'package:skill_auction/screens/register_component/login_screen.dart';
+import 'package:skill_auction/screens/register_component/splash_screen.dart';
 import 'package:skill_auction/screens/seller_dashboard/gig_page.dart';
 import 'package:skill_auction/screens/seller_dashboard/seller_dashboard.dart';
 import 'package:skill_auction/screens/seller_dashboard/seller_home.dart';
@@ -55,6 +56,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _initializeApp() async {
     try {
+      await Future.delayed(Duration(seconds: 3));
       final user = _auth.currentUser;
 
       if (user != null) {
@@ -104,9 +106,10 @@ class _MyAppState extends State<MyApp> {
     if (!_isInitialCheckComplete) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: Center(child: CircularProgressIndicator()),
-        ),
+        home: SplashScreen(),
+        // Scaffold(
+        //   body: Center(child: CircularProgressIndicator()),
+        // ),
       );
     }
 

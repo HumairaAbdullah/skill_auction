@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:skill_auction/custom_widgets/custom_color.dart';
@@ -20,6 +21,48 @@ class BuyerScreen extends StatefulWidget {
 class _BuyerScreenState extends State<BuyerScreen> {
   List<dynamic> dataList = [];
   bool isLoading = true;
+  List<Widget> avatar = [
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
+    CircleAvatar(),
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
+
+
+  ];
   final CustomColor customColor = CustomColor();
   final searchController = TextEditingController();
   final dbRef = FirebaseDatabase.instance.ref().child('sellerskills');
@@ -88,8 +131,6 @@ class _BuyerScreenState extends State<BuyerScreen> {
     }
   }
 
-
-
   @override
   void initState() {
     super.initState();
@@ -137,16 +178,145 @@ class _BuyerScreenState extends State<BuyerScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CustomtextField(
-                hint: 'search',
-                label: PurpleText(data: 'Search'),
-                obscure: false,
-                customcontroller: searchController,
-                prefix: Icon(Icons.search),
+              TextField(
+                controller: searchController,
+                decoration: InputDecoration(
+                  labelText: 'Search',
+                  labelStyle: TextStyle(
+                    color: customColor.purpleBlue,
+                  ),
+                  hintText: 'Search for skills',
+                  hintStyle: TextStyle(color: customColor.purpleText),
+                  prefixIcon: Icon(Icons.search),
+                  prefixIconColor: customColor.purpleText,
+                  iconColor: customColor.purpleText,
+                  enabled: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(60),
+                    borderSide: BorderSide(
+                      color: customColor.purpleBlue,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(60),
+                    borderSide: BorderSide(
+                      color: customColor.purpleText,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(60),
+                    borderSide: BorderSide(
+                      color: customColor.purpleBlue,
+                    ),
+                  ),
+                ),
               ),
-              SizedBox(
-                height: 10,
+              CarouselSlider(
+                items: [
+                  Image.asset(
+                    'assets/skill auction banner new.png',
+                  ),
+                  Image.asset(
+                    'assets/skillauction second banners.png',
+                  ),
+                  Image.asset(
+                    'assets/skill auction third banner.png',
+                  ),
+
+                  // Add more banners here if needed
+                ],
+                options: CarouselOptions(
+                  autoPlay: true,
+                  enlargeCenterPage: true,
+                  viewportFraction: 0.8,
+                  aspectRatio: 16 / 9,
+                  initialPage: 0,
+                ),
               ),
+              Text(
+                'Categories',
+                style: TextStyle(
+                    color: customColor.purpleBlue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18.0),
+              ),
+              SizedBox(height: 10,),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 40
+,                        backgroundImage: AssetImage(''),
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                          radius: 40,
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                          radius: 40,
+                        backgroundImage: AssetImage(''),
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage(''),
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage(''),
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage(''),
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage(''),
+                      ),
+                      SizedBox(width:10),
+                      CircleAvatar(
+                        radius: 40
+                        ,                        backgroundImage: AssetImage(''),
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                        radius: 40,
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage(''),
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage(''),
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage(''),
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage(''),
+                      ),
+                      SizedBox(width: 10,),
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundImage: AssetImage(''),
+                      ),
+
+                    ],
+                  ),),
+              SizedBox(height: 15,),
+             
               GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
@@ -219,13 +389,14 @@ class _BuyerScreenState extends State<BuyerScreen> {
                             padding: const EdgeInsets.only(left: 8.0),
                             child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
                                   Text(
                                     overflow: TextOverflow.ellipsis,
                                     'MinBid From:',
-                                    style:
-                                        TextStyle(color: customColor.purpleBlue),
+                                    style: TextStyle(
+                                        color: customColor.purpleBlue),
                                   ),
                                   SizedBox(
                                     width: 10,
