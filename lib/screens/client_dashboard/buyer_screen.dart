@@ -55,13 +55,13 @@ class _BuyerScreenState extends State<BuyerScreen> {
     ),
     CircleAvatar(
       backgroundImage: AssetImage(''),
-    ),CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),CircleAvatar(
+    ),
+    CircleAvatar(
       backgroundImage: AssetImage(''),
     ),
-
-
+    CircleAvatar(
+      backgroundImage: AssetImage(''),
+    ),
   ];
   final CustomColor customColor = CustomColor();
   final searchController = TextEditingController();
@@ -233,90 +233,9 @@ class _BuyerScreenState extends State<BuyerScreen> {
                   initialPage: 0,
                 ),
               ),
-              Text(
-                'Categories',
-                style: TextStyle(
-                    color: customColor.purpleBlue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.0),
+              SizedBox(
+                height: 10,
               ),
-              SizedBox(height: 10,),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 40
-,                        backgroundImage: AssetImage(''),
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                          radius: 40,
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                          radius: 40,
-                        backgroundImage: AssetImage(''),
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(''),
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(''),
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(''),
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(''),
-                      ),
-                      SizedBox(width:10),
-                      CircleAvatar(
-                        radius: 40
-                        ,                        backgroundImage: AssetImage(''),
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                        radius: 40,
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(''),
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(''),
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(''),
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(''),
-                      ),
-                      SizedBox(width: 10,),
-                      CircleAvatar(
-                        radius: 40,
-                        backgroundImage: AssetImage(''),
-                      ),
-
-                    ],
-                  ),),
-              SizedBox(height: 15,),
-             
               GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
