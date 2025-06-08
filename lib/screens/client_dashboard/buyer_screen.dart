@@ -1,7 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:skill_auction/custom_widgets/custom_color.dart';
 import 'package:skill_auction/custom_widgets/custom_textfield.dart';
 import 'package:skill_auction/custom_widgets/purple_text.dart';
@@ -10,6 +15,7 @@ import 'package:skill_auction/custom_widgets/white_text.dart';
 import 'package:skill_auction/firebase_model/skill_model.dart';
 import 'package:skill_auction/screens/client_dashboard/buyer_profile.dart';
 import 'package:skill_auction/screens/client_dashboard/detailskill_view.dart';
+import 'package:skill_auction/screens/seller_dashboard/sellerprofile_provider.dart';
 
 class BuyerScreen extends StatefulWidget {
   const BuyerScreen({super.key});
@@ -19,53 +25,16 @@ class BuyerScreen extends StatefulWidget {
 }
 
 class _BuyerScreenState extends State<BuyerScreen> {
-  List<dynamic> dataList = [];
+  List<SkillModel> dataList = [];
+  List<SkillModel> filteredList = [];
+  XFile? _image;
+  String? _base64image;
+  final ImagePicker _picker = ImagePicker();
   bool isLoading = true;
-  List<Widget> avatar = [
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-    CircleAvatar(
-      backgroundImage: AssetImage(''),
-    ),
-  ];
   final CustomColor customColor = CustomColor();
   final searchController = TextEditingController();
   final dbRef = FirebaseDatabase.instance.ref().child('sellerskills');
+
 // fetch all skills
   Future<void> fetchAllSkills() async {
     try {
@@ -77,6 +46,7 @@ class _BuyerScreenState extends State<BuyerScreen> {
 
       setState(() {
         dataList = skills;
+        filteredList = List.from(dataList); // Initialize filteredList
         isLoading = false;
       });
     } catch (e) {
@@ -131,10 +101,40 @@ class _BuyerScreenState extends State<BuyerScreen> {
     }
   }
 
+  void _filterSkills() {
+    final query = searchController.text.toLowerCase();
+
+    if (query.isEmpty) {
+      setState(() {
+        filteredList = List.from(dataList);
+      });
+      return;
+    }
+
+    setState(() {
+      filteredList = dataList.where((skill) {
+        return skill.skillTitle.toLowerCase().contains(query) ||
+            skill.sellerName.toLowerCase().contains(query) ||
+            skill.description.toLowerCase().contains(query) ||
+            skill.minBid.toString().contains(query);
+      }).toList();
+    });
+  }
+
+
   @override
   void initState() {
     super.initState();
+    searchController.addListener(_filterSkills);
     fetchAllSkills();
+    final provider = Provider.of<SellerProfileProvider>(context, listen: false);
+    provider.fetchSellerInfo();
+  }
+  @override
+  void dispose() {
+    searchController.removeListener(_filterSkills);
+    searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -145,19 +145,55 @@ class _BuyerScreenState extends State<BuyerScreen> {
         backgroundColor: Color(0xFFffd7f3),
         centerTitle: true,
         toolbarHeight: 90,
-        leading: Image.asset('assets/buyers skill auction.png'),
-        actions: [
-          InkWell(
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return BuyerProfile();
-              }));
-            },
-            child: CircleAvatar(
-              radius: 35,
-            ),
-          ),
-        ],
+        leading: Consumer<SellerProfileProvider>(
+            builder: (context, provider, child){
+              final user = provider.currentUser.isNotEmpty ? provider.currentUser.first : null;
+
+              return InkWell(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context){
+                    return BuyerProfile();
+                  }));
+                },
+                 child: CircleAvatar(
+              backgroundImage: _image != null
+              ? (kIsWeb
+                  ? NetworkImage(_image!.path)
+                  : FileImage(File(_image!.path)) as ImageProvider)
+                  : (user != null && user.imagePath != null && user.imagePath!.isNotEmpty
+              ? MemoryImage(base64Decode(user.imagePath!))
+                  : null),
+              child: (_image == null && (user == null || user.imagePath == null || user.imagePath!.isEmpty))
+              ? Icon(
+              Icons.camera_alt_outlined,
+              color: Color(0XFF8a2be1),
+              )
+                  : null,
+              ),
+
+
+              // child: CircleAvatar(
+                //     radius: 60,
+                //     backgroundImage: _image != null
+                //         ? kIsWeb
+                //         ? NetworkImage(_image!.path)
+                //         : FileImage(File(_image!.path))
+                //         : _base64image != null && _base64image!.isNotEmpty
+                //         ? MemoryImage(base64Decode(user.imagePath!))
+                //         : null,
+                //     child: _image == null &&
+                //         (_base64image == null || _base64image!.isEmpty)
+                //         ? IconButton(
+                //       onPressed: imagepickfunc,
+                //       icon: Icon(
+                //         Icons.camera_alt_outlined,
+                //         color: Color(0XFF8a2be1),
+                //       ),
+                //     )
+                //         : null),
+              );}
+        ),
+
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -187,7 +223,9 @@ class _BuyerScreenState extends State<BuyerScreen> {
                   ),
                   hintText: 'Search for skills',
                   hintStyle: TextStyle(color: customColor.purpleText),
-                  prefixIcon: Icon(Icons.search),
+                  suffixIcon: IconButton(onPressed: _filterSkills
+
+                 , icon: Icon(Icons.search,color: customColor.purpleText,)),
                   prefixIconColor: customColor.purpleText,
                   iconColor: customColor.purpleText,
                   enabled: true,
@@ -242,11 +280,11 @@ class _BuyerScreenState extends State<BuyerScreen> {
                   crossAxisSpacing: 5,
                   childAspectRatio: 0.68,
                 ),
-                itemCount: dataList.length,
+                  itemCount: filteredList.length,
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
-                  final skill = dataList[index] as SkillModel;
+                  final skill = filteredList[index] as SkillModel;
                   return InkWell(
                     onTap: () {
                       Navigator.push(
