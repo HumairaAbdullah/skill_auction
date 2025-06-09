@@ -217,7 +217,7 @@ class _GigPageState extends State<GigPage> {
                 height: 10,
               ),
               CustomtextField(
-                  hint: 'Delivery Time',
+                  hint: 'Delivery Time in days/month',
                   label: PurpleText(data: 'Delivery'),
                   obscure: false,
                   customcontroller: delivery),

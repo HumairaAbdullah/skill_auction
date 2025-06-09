@@ -175,6 +175,7 @@ class _SellerprofileForbuyersState extends State<SellerprofileForbuyers> {
                     ),
                   ),
                   Text(
+                    overflow: TextOverflow.ellipsis,
                     skill.category,
                     style: TextStyle(
                       color: _customColor.purpleText,
@@ -183,6 +184,17 @@ class _SellerprofileForbuyersState extends State<SellerprofileForbuyers> {
                   ),
                 ],
               ),
+              SizedBox(height: 10,),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text('Delivery:${skill.delivery}',style: TextStyle(
+                    color: _customColor.purpleBlue,
+                    fontWeight: FontWeight.bold,
+                    fontStyle: FontStyle.italic,
+                  ),),
+                ],
+              )
             ],
           ),
         ),

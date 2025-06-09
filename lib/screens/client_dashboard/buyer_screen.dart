@@ -147,7 +147,15 @@ class _BuyerScreenState extends State<BuyerScreen> {
         toolbarHeight: 90,
         leading: Consumer<SellerProfileProvider>(
             builder: (context, provider, child){
-              final user = provider.currentUser.isNotEmpty ? provider.currentUser.first : null;
+              if (provider.currentUser.isEmpty) {
+                return Icon(
+                  Icons.account_circle,
+                  color: Color(0xFF0944c8),
+                );
+              }
+
+              final user = provider.currentUser.first;
+             // final user = provider.currentUser.isNotEmpty ? provider.currentUser.first : null;
 
               return InkWell(
                 onTap: (){
