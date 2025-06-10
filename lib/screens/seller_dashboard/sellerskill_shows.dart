@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:skill_auction/custom_widgets/custom_color.dart';
 import 'package:skill_auction/custom_widgets/custom_snackbar.dart';
 import 'package:skill_auction/custom_widgets/purple_text.dart';
 import 'package:skill_auction/custom_widgets/purpleblue_text.dart';
@@ -17,6 +18,7 @@ class SellerSkillShow extends StatefulWidget {
 }
 
 class _SellerSkillShowState extends State<SellerSkillShow> {
+  final CustomColor customColor=CustomColor();
   @override
   void initState() {
     super.initState();
@@ -59,6 +61,7 @@ class _SellerSkillShowState extends State<SellerSkillShow> {
                             alignment: AlignmentDirectional.topCenter,
                             children: [
                               Card(
+                                color: customColor.peach,
                                 margin: EdgeInsets.symmetric(vertical: 6),
                                 child: ListTile(
                                   leading: skill.imagePath.isNotEmpty &&
@@ -76,13 +79,20 @@ class _SellerSkillShowState extends State<SellerSkillShow> {
                                           ),
                                         )
                                       : Icon(Icons.image_not_supported),
-                                  title: Text(skill.skillTitle),
+                                  title: Text(skill.skillTitle,style: TextStyle(
+                                    color: customColor.purpleText
+                                  ),),
                                   subtitle: Text(
                                     skill.description,
                                     maxLines: 2,
                                     overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: customColor.purpleText
+                                    ),
                                   ),
-                                  trailing: Text('Min Bid: \$${skill.minBid}'),
+                                  trailing: Text('Min Bid: \$${skill.minBid}',style: TextStyle(
+                                    color: customColor.purpleText
+                                  ),),
                                 ),
                               ),
                               Positioned(
@@ -103,7 +113,7 @@ class _SellerSkillShowState extends State<SellerSkillShow> {
                                       },
                                       icon: Icon(
                                         Icons.edit,
-                                        color: Color(0XFF8a2be1),
+                                        color: customColor.purpleBlue,
                                       ),
                                     ),
                                     IconButton(
@@ -163,7 +173,7 @@ class _SellerSkillShowState extends State<SellerSkillShow> {
                                         }
                                       },
                                       icon: Icon(Icons.delete,
-                                          color: Color(0XFF8a2be1)),
+                                          color: customColor.purpleBlue,),
                                     ),
                                     // IconButton(
                                     //   onPressed: () async {

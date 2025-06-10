@@ -16,6 +16,7 @@ class SellerInformation extends StatefulWidget {
 }
 
 class _SellerInformationState extends State<SellerInformation> {
+  final CustomColor customColor=CustomColor();
   @override
   void initState() {
     super.initState();
@@ -61,103 +62,108 @@ class _SellerInformationState extends State<SellerInformation> {
 
                 return Padding(
                   padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
+                  child: Card(
+                    color:  customColor.peach,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
 
-                            SizedBox(height: 5,),
-                            Row(
-                              children: [
-                                Icon(Icons.perm_contact_cal_outlined),
-                                Text(
-                                  'About:',
-                                  style: TextStyle(
-                                    color: Color(0XFF8a2be1),
-                                    fontSize: 18,
+                              SizedBox(height: 5,),
+                              Row(
+                                children: [
+                                  Icon(Icons.perm_contact_cal_outlined,color: customColor.purpleBlue,),
+                                  Text(
+                                    'About:',
+                                    style: TextStyle(
+                                      color: customColor.purpleBlue,
+                                      fontSize: 18,
 
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Text('${sellerInfo.description}.',style: TextStyle(),),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.email_outlined,),
-                                Text(
-                                  'Email:',
-                                  style: TextStyle(
-                                    color: Color(0XFF8a2be1),
-                                    fontSize: 18,
-
-                                  ),
-                                ),
-                                Text(
-                                  '  ${sellerInfo.email}',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(
-                              height: 15,
-                            ),
-                            Row(
-                              children: [
-                                Icon(Icons.phone_outlined,),
-                                Text(
-                                  'Phone:',
-                                  style: TextStyle(
-                                    color: Color(0XFF8a2be1),
-                                    fontSize: 18,
-
-                                  ),
-                                ),
-                                Text(
-                                  '  ${sellerInfo.phoneNumber}',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-
-                            SizedBox(height: 30,),
-                            Container(
-                              width: double.infinity,
-                              height: 50,
-                              color: Color(0xFF0944c8),
-                              child: TextButton(
-                                onPressed: ()async {
-                                  await FirebaseAuth.instance.signOut();
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(builder: (context) {
-                                        return LoginScreen();
-                                      }));
-                                },
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.logout,
-                                      color: Colors.white,
                                     ),
-                                    WhiteText(data: 'LogOut'),
-                                  ],
+                                  ),
+                                ],
+                              ),
+                              Text('${sellerInfo.description}.',style: TextStyle(
+                                color: customColor.purpleText
+                              ),),
+                              SizedBox(
+                                height: 15,
+                              ),
+                              Row(
+                                children: [
+                                  Icon(Icons.email_outlined,color: customColor.purpleBlue,),
+                                  Text(
+                                    'Email:',
+                                    style: TextStyle(
+                                      color: customColor.purpleBlue,
+                                      fontSize: 18,
+
+                                    ),
+                                  ),
+                                  Text(
+                                    '  ${sellerInfo.email}',
+                                    style: TextStyle(fontWeight: FontWeight.bold,color: customColor.purpleText),
+                                  ),
+                                ],
+                              ),
+
+                              SizedBox(
+                                height: 15,
+                              ),
+                              Row(
+                                children: [
+                                  Icon(Icons.phone_outlined,color: customColor.purpleBlue,),
+                                  Text(
+                                    'Phone:',
+                                    style: TextStyle(
+                                      color: customColor.purpleBlue,
+                                      fontSize: 18,
+
+                                    ),
+                                  ),
+                                  Text(
+                                    '  ${sellerInfo.phoneNumber}',
+                                    style: TextStyle(fontWeight: FontWeight.bold,color: customColor.purpleText),
+                                  ),
+                                ],
+                              ),
+
+                              SizedBox(height: 30,),
+                              Container(
+                                width: double.infinity,
+                                height: 50,
+                                color: Color(0xFF0944c8),
+                                child: TextButton(
+                                  onPressed: ()async {
+                                    await FirebaseAuth.instance.signOut();
+                                    Navigator.pushReplacement(context,
+                                        MaterialPageRoute(builder: (context) {
+                                          return LoginScreen();
+                                        }));
+                                  },
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.logout,
+                                        color: Colors.white,
+                                      ),
+                                      WhiteText(data: 'LogOut'),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
 
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
 
-                    ],
+                      ],
+                    ),
                   ),
                 );
               },

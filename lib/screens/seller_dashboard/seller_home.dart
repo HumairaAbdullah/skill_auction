@@ -50,6 +50,7 @@ class _SellerHomeState extends State<SellerHome> {
             child: Column(
               children: [
                 Card(
+                  color: customColor.peach,
                   child: ListTile(
                     title: Consumer<SellerProfileProvider>(
                         builder: (context, provider, child) {
@@ -69,7 +70,7 @@ class _SellerHomeState extends State<SellerHome> {
                       return Row(
                         children: [
                           PurpleblueText(data: 'Hi, ${sellerInfo.firstname}'),
-                          PurpleblueText(data: '${sellerInfo.lastName}'),
+                          PurpleblueText(data: ' ${sellerInfo.lastName}'),
                         ],
                       );
                     }),
@@ -77,10 +78,10 @@ class _SellerHomeState extends State<SellerHome> {
                       data: 'Welcome Back',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    trailing: CircleAvatar(
-                      radius: 60,
-                      backgroundImage:
-                          AssetImage('assets/Skill Auction seller.png'),
+                    trailing: Container(
+                        child:
+                            Image.asset('assets/buyers skill auction.png'),
+
                     ),
                   ),
                 ),
@@ -112,6 +113,7 @@ class _SellerHomeState extends State<SellerHome> {
                             }));
                           },
                           child: Card(
+                            color: customColor.peach,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -145,6 +147,7 @@ class _SellerHomeState extends State<SellerHome> {
                             }));
                           },
                           child: Card(
+                            color: customColor.peach,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -173,6 +176,7 @@ class _SellerHomeState extends State<SellerHome> {
                       child: Container(
                         width: double.infinity,
                         child: Card(
+                          color: customColor.peach,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
@@ -202,6 +206,7 @@ class _SellerHomeState extends State<SellerHome> {
                             }));
                           },
                           child: Card(
+                            color: customColor.peach,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
@@ -242,65 +247,69 @@ class _SellerHomeState extends State<SellerHome> {
                   height: 10,
                 ),
                 Card(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              PurpleText(data: 'Available for Withdrawal'),
-                              PurpleblueText(data: 'Count'),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              PurpleText(data: 'Avg.Bid Price'),
-                              PurpleblueText(data: ' Count'),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              PurpleText(data: 'Payment Being Cleared '),
-                              PurpleblueText(data: 'Count'),
-                            ],
-                          ),
-                          Divider(
-                            color: customColor.purpleBlue,
-                            thickness: 10,
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              PurpleText(data: 'Earnings in Month'),
-                              PurpleblueText(data: 'Count'),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              PurpleText(data: 'Active Orders'),
-                              PurpleblueText(data: 'Count'),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              PurpleText(data: 'Cancelled Orders'),
-                              PurpleblueText(data: 'Count'),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 40,
-                      ),
-                    ],
+                  color: customColor.peach,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                PurpleText(data: 'Available for Withdrawal'),
+                                PurpleblueText(data: 'Count'),
+                                SizedBox(
+                                  height: 25,
+                                ),
+                                PurpleText(data: 'Avg.Bid Price'),
+                                PurpleblueText(data: 'Count'),
+                                SizedBox(
+                                  height: 25,
+                                ),
+                                PurpleText(data: 'Payment Being Cleared '),
+                                PurpleblueText(data: 'Count'),
+                              ],
+                            ),
+                            Divider(
+                              color: customColor.purpleBlue,
+                              thickness: 10,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                PurpleText(data: 'Earnings in Month'),
+                                PurpleblueText(data: 'Count'),
+                                SizedBox(
+                                  height: 25,
+                                ),
+                                PurpleText(data: 'Active Orders'),
+                                PurpleblueText(data: 'Count'),
+                                SizedBox(
+                                  height: 25,
+                                ),
+                                PurpleText(data: 'Cancelled Orders'),
+                                PurpleblueText(data: 'Count'),
+                              ],
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 40,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
