@@ -3,6 +3,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:skill_auction/custom_widgets/custom_color.dart';
 import 'package:intl/intl.dart'; // For date formatting
+import 'package:skill_auction/firebase_model/user_model.dart';
+import 'package:skill_auction/firebase_model/skill_model.dart';
 
 class BidPage extends StatefulWidget {
   const BidPage({super.key});
@@ -16,6 +18,8 @@ class _BidPageState extends State<BidPage> {
   final dbRef = FirebaseDatabase.instance.ref();
   final auth = FirebaseAuth.instance;
   List<Map<String, dynamic>> bids = [];
+  Map<String, UserModel> buyers = {};
+  Map<String, SkillModel> skills = {};
   bool isLoading = true;
   bool isRefreshing = false;
 
@@ -23,6 +27,42 @@ class _BidPageState extends State<BidPage> {
   void initState() {
     super.initState();
     fetchBids();
+  }
+
+  Future<void> fetchBuyerInfo(String userId) async {
+    if (buyers.containsKey(userId)) return;
+
+    try {
+      final snapshot = await dbRef.child('auctionusers').child(userId).get();
+      if (snapshot.exists) {
+        final buyerInfo = UserModel.fromMap(
+          Map<String, dynamic>.from(snapshot.value as Map),
+        );
+        setState(() {
+          buyers[userId] = buyerInfo;
+        });
+      }
+    } catch (e) {
+      print('Error fetching buyer info: $e');
+    }
+  }
+
+  Future<void> fetchSkillInfo(String skillId) async {
+    if (skills.containsKey(skillId)) return;
+
+    try {
+      final snapshot = await dbRef.child('sellerskills').child(skillId).get();
+      if (snapshot.exists) {
+        final skillInfo = SkillModel.fromMap(
+          Map<String, dynamic>.from(snapshot.value as Map),
+        );
+        setState(() {
+          skills[skillId] = skillInfo;
+        });
+      }
+    } catch (e) {
+      print('Error fetching skill info: $e');
+    }
   }
 
   Future<void> fetchBids() async {
@@ -67,6 +107,12 @@ class _BidPageState extends State<BidPage> {
       }).toList();
 
       print('Found ${loadedBids.length} bids for current seller');
+
+      // Fetch buyer and skill info for each bid
+      for (var bid in loadedBids) {
+        await fetchBuyerInfo(bid['userId']);
+        await fetchSkillInfo(bid['skillId']);
+      }
 
       // Sort bids by timestamp (newest first)
       loadedBids.sort((a, b) => (b['timestamp'] as int).compareTo(a['timestamp'] as int));
@@ -176,6 +222,9 @@ class _BidPageState extends State<BidPage> {
             final date = DateTime.fromMillisecondsSinceEpoch(bid['timestamp']);
             final formattedDate = DateFormat('MMM dd, yyyy - hh:mm a').format(date);
 
+            final buyer = buyers[bid['userId']];
+            final skill = skills[bid['skillId']];
+
             return Card(
               margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               elevation: 2,
@@ -220,7 +269,7 @@ class _BidPageState extends State<BidPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'User ID',
+                                'Buyer',
                                 style: TextStyle(
                                   color: customColor.purpleText,
                                   fontSize: 14,
@@ -228,10 +277,11 @@ class _BidPageState extends State<BidPage> {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                bid['userId'].toString().substring(0, 8) + '...',
+                                buyer?.firstname?? 'Loading...',
                                 style: TextStyle(
                                   color: customColor.purpleText,
                                   fontSize: 14,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -240,7 +290,7 @@ class _BidPageState extends State<BidPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Skill ID',
+                                'Skill',
                                 style: TextStyle(
                                   color: customColor.purpleText,
                                   fontSize: 14,
@@ -248,10 +298,11 @@ class _BidPageState extends State<BidPage> {
                               ),
                               SizedBox(height: 4),
                               Text(
-                                bid['skillId'].toString().substring(0, 8) + '...',
+                                skill?.skillTitle ?? 'Loading...',
                                 style: TextStyle(
                                   color: customColor.purpleText,
                                   fontSize: 14,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -260,8 +311,7 @@ class _BidPageState extends State<BidPage> {
                       ),
                       SizedBox(height: 12),
                       Text(
-                        'Received:'
-                            ' $formattedDate',
+                        'Received: $formattedDate',
                         style: TextStyle(
                           color: customColor.purpleText,
                           fontSize: 12,
