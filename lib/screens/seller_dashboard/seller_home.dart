@@ -180,7 +180,7 @@ class _SellerHomeState extends State<SellerHome> {
                                 SizedBox(height: 10),
                                 Icon(
                                   Icons.category,
-                                  size: 50,
+                                  size: 40,
                                 ),
                                 SizedBox(height: 15),
                                 // Show loading indicator or product count
@@ -219,7 +219,7 @@ class _SellerHomeState extends State<SellerHome> {
                                 SizedBox(height: 10),
                                 Icon(
                                   Icons.receipt_long,
-                                  size: 50,
+                                  size: 40,
                                 ),
                                 SizedBox(height:15),
                                 Text('0',style: TextStyle(
@@ -254,7 +254,7 @@ class _SellerHomeState extends State<SellerHome> {
                               SizedBox(height: 10),
                               Icon(
                                 Icons.monetization_on_rounded,
-                                size: 50,
+                                size: 40,
                               ),
                               SizedBox(height:15),
                               Text('0',style: TextStyle(
@@ -290,7 +290,7 @@ class _SellerHomeState extends State<SellerHome> {
                                 SizedBox(height: 10),
                                 Icon(
                                   Icons.star,
-                                  size: 50,
+                                  size:40,
                                 ),
                                 SizedBox(height:15),
                                 Text('0',style: TextStyle(
@@ -332,7 +332,7 @@ class _SellerHomeState extends State<SellerHome> {
                 Card(
                   color: customColor.peach,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.all(15.0),
                     child: Column(
                       children: [
                         SizedBox(
@@ -346,17 +346,29 @@ class _SellerHomeState extends State<SellerHome> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 PurpleText(data: 'Available for Withdrawal'),
-                                PurpleblueText(data: 'Count'),
+                                SizedBox(height: 5,),
+                                Text( ' 0\$',style: TextStyle(
+                                  color: customColor.purpleBlue,
+                                  fontWeight: FontWeight.bold,
+                                ),),
                                 SizedBox(
                                   height: 25,
                                 ),
                                 PurpleText(data: 'Avg.Bid Price'),
-                                PurpleblueText(data: 'Count'),
+                                SizedBox(height: 5,),
+                                Text( ' 80\$',style: TextStyle(
+                                  color: customColor.purpleBlue,
+                                  fontWeight: FontWeight.bold,
+                                ),),
                                 SizedBox(
                                   height: 25,
                                 ),
                                 PurpleText(data: 'Payment Being Cleared '),
-                                PurpleblueText(data: 'Count'),
+                                SizedBox(height: 5,),
+                                Text( ' 0\$',style: TextStyle(
+                                  color: customColor.purpleBlue,
+                                  fontWeight: FontWeight.bold,
+                                ),),
                               ],
                             ),
                             Divider(
@@ -370,17 +382,29 @@ class _SellerHomeState extends State<SellerHome> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 PurpleText(data: 'Earnings in Month'),
-                                PurpleblueText(data: 'Count'),
+                                SizedBox(height: 5,),
+                                Text( ' 0\$',style: TextStyle(
+                                  color: customColor.purpleBlue,
+                                  fontWeight: FontWeight.bold,
+                                ),),
                                 SizedBox(
                                   height: 25,
                                 ),
                                 PurpleText(data: 'Active Orders'),
-                                PurpleblueText(data: 'Count'),
+                                SizedBox(height: 5,),
+                                Text( ' 0\$',style: TextStyle(
+                                  color: customColor.purpleBlue,
+                                  fontWeight: FontWeight.bold,
+                                ),),
                                 SizedBox(
                                   height: 25,
                                 ),
                                 PurpleText(data: 'Cancelled Orders'),
-                                PurpleblueText(data: 'Count'),
+                                SizedBox(height: 5,),
+                                Text( ' 0\$',style: TextStyle(
+                                  color: customColor.purpleBlue,
+                                  fontWeight: FontWeight.bold,
+                                ),),
                               ],
                             ),
                             SizedBox(
@@ -389,7 +413,7 @@ class _SellerHomeState extends State<SellerHome> {
                           ],
                         ),
                         SizedBox(
-                          height: 40,
+                          height: 20,
                         ),
                       ],
                     ),

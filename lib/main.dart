@@ -4,6 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_auction/custom_widgets/custom_snackbar.dart';
+import 'package:skill_auction/firebase_model/acceptedbid.dart';
 import 'package:skill_auction/firebase_model/sellercrud.dart';
 import 'package:skill_auction/screens/admin_dashboard/admin_dashboard.dart';
 import 'package:skill_auction/screens/client_dashboard/buyer_screen.dart';
@@ -29,6 +30,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (context) => SellerCrud()),
         ChangeNotifierProvider(create: (context) => SellerProfileProvider()),
+        ChangeNotifierProvider(create: (context)=>AcceptedBid(),),
       ],
       child: MyApp(),
     ),
