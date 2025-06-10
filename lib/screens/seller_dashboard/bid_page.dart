@@ -193,7 +193,7 @@ class _BidPageState extends State<BidPage> {
               Icon(
                 Icons.money_off,
                 size: 64,
-                color: customColor.purpleText.withOpacity(0.5),
+                color: customColor.purpleText,
               ),
               SizedBox(height: 16),
               Text(
@@ -208,7 +208,7 @@ class _BidPageState extends State<BidPage> {
                 'When you receive bids, they will appear here',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: customColor.purpleText.withOpacity(0.7),
+                  color: customColor.purpleText,
                 ),
               ),
             ],
@@ -265,19 +265,28 @@ class _BidPageState extends State<BidPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          Text(
+                            'Buyer',
+                            style: TextStyle(
+                              color: customColor.purpleText,
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Row(
                             children: [
                               Text(
-                                'Buyer',
+                                               " ${buyer?.firstname??'Loading...'}",
+
                                 style: TextStyle(
                                   color: customColor.purpleText,
                                   fontSize: 14,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              SizedBox(height: 4),
                               Text(
-                                buyer?.firstname?? 'Loading...',
+                                " ${buyer?.lastName??'Loading...'}",
+
                                 style: TextStyle(
                                   color: customColor.purpleText,
                                   fontSize: 14,
@@ -286,26 +295,29 @@ class _BidPageState extends State<BidPage> {
                               ),
                             ],
                           ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Skill',
-                                style: TextStyle(
-                                  color: customColor.purpleText,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                skill?.skillTitle ?? 'Loading...',
-                                style: TextStyle(
-                                  color: customColor.purpleText,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+
+
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Skill',
+                            style: TextStyle(
+                              color: customColor.purpleText,
+                              fontSize: 14,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            skill?.skillTitle ?? 'Loading...',
+                            style: TextStyle(
+                              color: customColor.purpleText,
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ],
                       ),
