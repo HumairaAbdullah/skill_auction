@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_auction/custom_widgets/custom_color.dart';
@@ -7,6 +9,7 @@ import 'package:skill_auction/custom_widgets/purple_text.dart';
 import 'package:skill_auction/custom_widgets/purpleblue_text.dart';
 import 'package:skill_auction/custom_widgets/white_text.dart';
 import 'package:skill_auction/firebase_model/sellercrud.dart';
+import 'package:skill_auction/firebase_model/skill_model.dart';
 import 'package:skill_auction/screens/register_component/login_screen.dart';
 import 'package:skill_auction/screens/seller_dashboard/gig_page.dart';
 import 'package:skill_auction/screens/seller_dashboard/order_page.dart';
@@ -25,10 +28,67 @@ class SellerHome extends StatefulWidget {
 
 class _SellerHomeState extends State<SellerHome> {
   final customColor = CustomColor();
+  int productCount=0;
+  bool isLoading = true;
+  String? errorMessage;
+
+  final DatabaseReference _database = FirebaseDatabase.instance.ref();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  Future<void> fetchDashboardData() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) throw Exception('User not logged in');
+
+      final snapshot = await _database
+          .child('sellerskills')
+          .orderByChild('sellerId')
+          .equalTo(currentUser.uid)
+          .once();
+
+      setState(() {
+        productCount = snapshot.snapshot.children.length;
+      });
+
+      if (snapshot.snapshot.exists) {
+        // Convert the snapshot to a list of ProductModel objects
+        final products = snapshot.snapshot.children.map((child) {
+          return SkillModel.fromMap(child.value as Map<dynamic, dynamic>);
+        }).toList();
+
+        setState(() {
+          productCount = products.length;
+        });
+      } else {
+        setState(() {
+          productCount = 0;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Failed to fetch products: ${e.toString()}';
+        productCount = 0;
+      });
+      debugPrint(errorMessage);
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+
 
   @override
   void initState() {
     super.initState();
+    fetchDashboardData();
     // Fetch data when the page loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<SellerCrud>(context, listen: false).fetchData();
@@ -122,10 +182,15 @@ class _SellerHomeState extends State<SellerHome> {
                                   Icons.category,
                                   size: 50,
                                 ),
-                                SizedBox(height: 10),
+                                SizedBox(height: 15),
                                 // Show loading indicator or product count
 
-                                SizedBox(height: 40),
+                                Text('${productCount}',style: TextStyle(
+                                  color: customColor.purpleBlue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20
+                                ),),
+                                SizedBox(height: 15,),
                                 PurpleText(
                                   data: 'Active Skills',
                                 ),
@@ -156,7 +221,13 @@ class _SellerHomeState extends State<SellerHome> {
                                   Icons.receipt_long,
                                   size: 50,
                                 ),
-                                SizedBox(height: 50),
+                                SizedBox(height:15),
+                                Text('0',style: TextStyle(
+                                    color: customColor.purpleBlue,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20
+                                ),),
+                                SizedBox(height: 15,),
                                 PurpleText(
                                   data: 'Completed Orders',
                                 ),
@@ -185,7 +256,13 @@ class _SellerHomeState extends State<SellerHome> {
                                 Icons.monetization_on_rounded,
                                 size: 50,
                               ),
-                              SizedBox(height: 60),
+                              SizedBox(height:15),
+                              Text('0',style: TextStyle(
+                                  color: customColor.purpleBlue,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20
+                              ),),
+                              SizedBox(height: 15,),
                               PurpleText(
                                 data: ' Total Earnings',
                               ),
@@ -215,7 +292,13 @@ class _SellerHomeState extends State<SellerHome> {
                                   Icons.star,
                                   size: 50,
                                 ),
-                                SizedBox(height: 60),
+                                SizedBox(height:15),
+                                Text('0',style: TextStyle(
+                                    color: customColor.purpleBlue,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20
+                                ),),
+                                SizedBox(height: 15,),
                                 PurpleText(
                                   data: 'Rating',
                                 ),
