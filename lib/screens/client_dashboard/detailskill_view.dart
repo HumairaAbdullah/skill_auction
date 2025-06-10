@@ -348,6 +348,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
         'skillId': widget.skillId,
         'biddingAmount': bidAmount,
         'timestamp': timestamp,
+        'sellerId': skillDetails!.sellerId,
       });
 
       // //  save under skill-specific path for easier querying
