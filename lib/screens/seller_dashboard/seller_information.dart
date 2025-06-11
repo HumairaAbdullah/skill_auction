@@ -75,7 +75,7 @@ class _SellerInformationState extends State<SellerInformation> {
                               SizedBox(height: 5,),
                               Row(
                                 children: [
-                                  Icon(Icons.perm_contact_cal_outlined,color: customColor.purpleBlue,),
+                                  Icon(Icons.perm_contact_cal,color: customColor.purpleBlue,),
                                   Text(
                                     'About:',
                                     style: TextStyle(
@@ -86,6 +86,7 @@ class _SellerInformationState extends State<SellerInformation> {
                                   ),
                                 ],
                               ),
+                              SizedBox(height: 10,),
                               Text('${sellerInfo.description}.',style: TextStyle(
                                 color: customColor.purpleText
                               ),),
@@ -94,7 +95,7 @@ class _SellerInformationState extends State<SellerInformation> {
                               ),
                               Row(
                                 children: [
-                                  Icon(Icons.email_outlined,color: customColor.purpleBlue,),
+                                  Icon(Icons.email,color: customColor.purpleBlue,),
                                   Text(
                                     'Email:',
                                     style: TextStyle(
@@ -115,7 +116,7 @@ class _SellerInformationState extends State<SellerInformation> {
                               ),
                               Row(
                                 children: [
-                                  Icon(Icons.phone_outlined,color: customColor.purpleBlue,),
+                                  Icon(Icons.phone,color: customColor.purpleBlue,),
                                   Text(
                                     'Phone:',
                                     style: TextStyle(

@@ -13,6 +13,7 @@ import 'package:skill_auction/firebase_model/skill_model.dart';
 import 'package:skill_auction/screens/register_component/login_screen.dart';
 import 'package:skill_auction/screens/seller_dashboard/gig_page.dart';
 import 'package:skill_auction/screens/seller_dashboard/order_page.dart';
+import 'package:skill_auction/screens/seller_dashboard/profile_page.dart';
 import 'package:skill_auction/screens/seller_dashboard/review_screen.dart';
 import 'package:skill_auction/screens/seller_dashboard/seller_information.dart';
 import 'package:skill_auction/screens/seller_dashboard/sellerprofile_provider.dart';
@@ -279,7 +280,7 @@ class _SellerHomeState extends State<SellerHome> {
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return ReviewScreen();
+                              return ProfilePage();
                             }));
                           },
                           child: Card(

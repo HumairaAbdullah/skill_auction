@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:skill_auction/custom_widgets/custom_color.dart';
 import 'package:intl/intl.dart'; // For date formatting
+import 'package:skill_auction/firebase_model/acceptedbid.dart';
 import 'package:skill_auction/firebase_model/user_model.dart';
 import 'package:skill_auction/firebase_model/skill_model.dart';
 import 'package:skill_auction/screens/seller_dashboard/buyerprofile_forseller.dart';
@@ -133,6 +135,46 @@ class _BidPageState extends State<BidPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load bids: ${e.toString()}')),
       );
+    }
+  }
+
+  Future<void> acceptBid(Map<String, dynamic> bid) async {
+    try {
+      final currentUser = auth.currentUser;
+      if (currentUser == null) return;
+
+      // Create a new accepted bid record
+      await dbRef.child('AcceptedBids').push().set({
+        'bidId': bid['bidId'],
+        'skillId': bid['skillId'],
+        'sellerId': bid['sellerId'],
+        'buyerId': bid['userId'],
+        'originalBidTimestamp': bid['timestamp'],
+        'acceptedAt': DateTime.now().millisecondsSinceEpoch,
+        'amount': bid['biddingAmount'],
+      });
+
+      // Update the original bid status
+      await dbRef.child('Bidding').child(bid['bidId']).update({
+        'status': 'accepted',
+      });
+
+      // Remove the bid from the local list
+      if (mounted) {
+        setState(() {
+          bids.removeWhere((b) => b['bidId'] == bid['bidId']);
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Bid accepted successfully!')),
+        );
+      }
+    } catch (e) {
+      print('Error accepting bid: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to accept bid: ${e.toString()}')),
+        );
+      }
     }
   }
 
@@ -295,12 +337,13 @@ class _BidPageState extends State<BidPage> {
                                             Text(
                                               " ${buyer?.firstname ?? 'Loading...'} ${buyer?.lastName ?? 'Loading...'}",
                                               style: TextStyle(
-                                                color: customColor.purpleText,
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                decoration: TextDecoration.underline,
-                                                decorationColor: customColor.purpleText
-                                              ),
+                                                  color: customColor.purpleText,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  decoration:
+                                                      TextDecoration.underline,
+                                                  decorationColor:
+                                                      customColor.purpleText),
                                             ),
                                           ],
                                         ),
@@ -338,22 +381,28 @@ class _BidPageState extends State<BidPage> {
                                       fontSize: 12,
                                     ),
                                   ),
-                                 // SizedBox(height: 10,),
+                                  // SizedBox(height: 10,),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      ElevatedButton(
-                                          onPressed: (){},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.green,
-                                          ),
-
-                                          child:Text('Accept',style:TextStyle(
-                                        color: Colors.white,
-                                      ),)),
+                                      Consumer<AcceptedBid>(
+                                          builder: (context, provider, child) {
+                                        return ElevatedButton(
+                                            onPressed: () {
+                                              acceptBid(bid);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.green,
+                                            ),
+                                            child: Text(
+                                              'Accept',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ));
+                                      }),
                                     ],
                                   )
-                                  
                                 ],
                               ),
                             ),

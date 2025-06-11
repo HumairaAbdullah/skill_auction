@@ -434,6 +434,52 @@ class _DetailSkillViewState extends State<DetailSkillView> {
       return result;
     });
   }
+  Future<Map<String, dynamic>?> fetchAcceptedBid() async {
+    try {
+      final currentUser = auth.currentUser;
+      if (currentUser == null) {
+        debugPrint('User not logged in');
+        return null;
+      }
+
+      // Query the database for accepted bids where the current user is the bidder
+      final acceptedBidRef = FirebaseDatabase.instance
+          .ref('AcceptedBids')
+          .orderByChild('userId')
+          .equalTo(currentUser.uid);
+
+      final DatabaseEvent event = await acceptedBidRef.once();
+      final DataSnapshot snapshot = event.snapshot;
+
+      if (snapshot.exists) {
+        // Convert the data to a Map
+        final dynamicData = snapshot.value as Map<dynamic, dynamic>;
+        final acceptedBidData = Map<String, dynamic>.fromEntries(
+          dynamicData.entries.map(
+                (e) => MapEntry(e.key.toString(), e.value),
+          ),
+        );
+
+        // Since we're querying by user ID, there might be multiple accepted bids
+        // Here we'll just return the first one (you might want to modify this)
+        final firstBidKey = acceptedBidData.keys.first;
+        final bidDetails = acceptedBidData[firstBidKey] as Map<dynamic, dynamic>;
+
+        // Convert to proper Map<String, dynamic>
+        final result = Map<String, dynamic>.from(bidDetails);
+        result['bidId'] = firstBidKey; // Include the bid ID
+
+        debugPrint('Found accepted bid: $result');
+        return result;
+      } else {
+        debugPrint('No accepted bids found for this user');
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Error fetching accepted bid: $e');
+      return null;
+    }
+  }
 
   Widget buildBidTextField() {
     return TextField(
@@ -723,6 +769,38 @@ class _DetailSkillViewState extends State<DetailSkillView> {
                             }
 
                             return buildBidStatus(snapshot);
+                          },
+                        ),
+                        // In your build method, maybe in a button or as part of the bid status
+                        FutureBuilder<Map<String, dynamic>?>(
+                          future: fetchAcceptedBid(),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return CircularProgressIndicator();
+                            }
+
+                            if (snapshot.hasData && snapshot.data != null) {
+                              final acceptedBid = snapshot.data!;
+                              return Container(
+                                padding: EdgeInsets.all(8),
+                                color: Colors.green,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      'Your bid has been accepted!',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    Text(
+                                      'Amount: \$${acceptedBid['biddingAmount']}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    // Add more details as needed
+                                  ],
+                                ),
+                              );
+                            }
+
+                            return SizedBox.shrink(); // Return empty if no accepted bid
                           },
                         ),
                       ],
