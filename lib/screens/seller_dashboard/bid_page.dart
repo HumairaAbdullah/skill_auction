@@ -91,8 +91,30 @@ class _BidPageState extends State<BidPage> {
       final bidsData = snapshot.value as Map<dynamic, dynamic>;
       print('Total bids in database: ${bidsData.length}');
 
+      // final loadedBids = bidsData.entries
+      //     .where((entry) => entry.value['sellerId'] == currentSellerId)
+      //     .map((entry) {
+      //   final value = entry.value as Map<dynamic, dynamic>;
+      //   return {
+      //     'bidId': entry.key,
+      //     'userId': value['userId'] ?? '',
+      //     'skillId': value['skillId'] ?? '',
+      //     'biddingAmount': (value['biddingAmount'] is String)
+      //         ? double.tryParse(value['biddingAmount']) ?? 0.0
+      //         : (value['biddingAmount'] ?? 0.0).toDouble(),
+      //     'timestamp': value['timestamp'] is int
+      //         ? value['timestamp']
+      //         : int.tryParse(value['timestamp'].toString()) ?? 0,
+      //     'sellerId': value['sellerId'] ?? '',
+      //   };
+      // }).toList();
+
       final loadedBids = bidsData.entries
-          .where((entry) => entry.value['sellerId'] == currentSellerId)
+          .where((entry) {
+        final value = entry.value as Map<dynamic, dynamic>;
+        return value['sellerId'] == currentSellerId &&
+            (value['status'] == null || value['status'] != 'accepted');
+      })
           .map((entry) {
         final value = entry.value as Map<dynamic, dynamic>;
         return {
@@ -106,8 +128,10 @@ class _BidPageState extends State<BidPage> {
               ? value['timestamp']
               : int.tryParse(value['timestamp'].toString()) ?? 0,
           'sellerId': value['sellerId'] ?? '',
+          'status': value['status'] ?? 'pending', // Add status to the bid map
         };
-      }).toList();
+      })
+          .toList();
 
       print('Found ${loadedBids.length} bids for current seller');
 
@@ -154,10 +178,8 @@ class _BidPageState extends State<BidPage> {
         'amount': bid['biddingAmount'],
       });
 
-      // Update the original bid status
-      await dbRef.child('Bidding').child(bid['bidId']).update({
-        'status': 'accepted',
-      });
+      // Remove the bid from the Bidding node entirely
+      await dbRef.child('Bidding').child(bid['bidId']).remove();
 
       // Remove the bid from the local list
       if (mounted) {
