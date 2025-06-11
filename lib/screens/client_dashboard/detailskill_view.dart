@@ -129,6 +129,8 @@ class _DetailSkillViewState extends State<DetailSkillView> {
   bool isLoading = true;
   SkillModel? skillDetails;
   Stream<Map<String, dynamic>>? bidStream;
+  Map<String, dynamic>? acceptedBid;
+  bool isCheckingAcceptedBid = false;
 
   @override
   void initState() {
@@ -140,6 +142,8 @@ class _DetailSkillViewState extends State<DetailSkillView> {
       debugPrint('DetailSkillView initialized with skillId: ${widget.skillId}');
       fetchSkillDetail();
       initializeBidStream();
+      fetchAcceptedBid();
+      checkForAcceptedBid();
     }
   }
 
@@ -442,42 +446,47 @@ class _DetailSkillViewState extends State<DetailSkillView> {
         return null;
       }
 
-      // Query the database for accepted bids where the current user is the bidder
+      // Query all accepted bids where buyerId matches current user
       final acceptedBidRef = FirebaseDatabase.instance
           .ref('AcceptedBids')
-          .orderByChild('userId')
+          .orderByChild('buyerId')
           .equalTo(currentUser.uid);
 
       final DatabaseEvent event = await acceptedBidRef.once();
       final DataSnapshot snapshot = event.snapshot;
 
       if (snapshot.exists) {
-        // Convert the data to a Map
         final dynamicData = snapshot.value as Map<dynamic, dynamic>;
-        final acceptedBidData = Map<String, dynamic>.fromEntries(
-          dynamicData.entries.map(
-                (e) => MapEntry(e.key.toString(), e.value),
-          ),
-        );
 
-        // Since we're querying by user ID, there might be multiple accepted bids
-        // Here we'll just return the first one (you might want to modify this)
-        final firstBidKey = acceptedBidData.keys.first;
-        final bidDetails = acceptedBidData[firstBidKey] as Map<dynamic, dynamic>;
-
-        // Convert to proper Map<String, dynamic>
-        final result = Map<String, dynamic>.from(bidDetails);
-        result['bidId'] = firstBidKey; // Include the bid ID
-
-        debugPrint('Found accepted bid: $result');
-        return result;
-      } else {
-        debugPrint('No accepted bids found for this user');
-        return null;
+        // Convert to proper Map and find the bid for this specific skill
+        for (final entry in dynamicData.entries) {
+          final bid = Map<String, dynamic>.from(entry.value as Map);
+          if (bid['skillId'] == widget.skillId) {
+            return {
+              ...bid,
+              'acceptedBidId': entry.key.toString(), // The key from AcceptedBids node
+            };
+          }
+        }
       }
+      debugPrint('No accepted bids found for this user and skill');
+      return null;
     } catch (e) {
       debugPrint('Error fetching accepted bid: $e');
       return null;
+    }
+  }
+  Future<void> checkForAcceptedBid() async {
+    setState(() => isCheckingAcceptedBid = true);
+    try {
+      final bid = await fetchAcceptedBid();
+      setState(() {
+        acceptedBid = bid;
+        isCheckingAcceptedBid = false;
+      });
+    } catch (e) {
+      setState(() => isCheckingAcceptedBid = false);
+      debugPrint('Error checking for accepted bid: $e');
     }
   }
 
@@ -771,38 +780,60 @@ class _DetailSkillViewState extends State<DetailSkillView> {
                             return buildBidStatus(snapshot);
                           },
                         ),
-                        // In your build method, maybe in a button or as part of the bid status
-                        FutureBuilder<Map<String, dynamic>?>(
-                          future: fetchAcceptedBid(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return CircularProgressIndicator();
-                            }
-
-                            if (snapshot.hasData && snapshot.data != null) {
-                              final acceptedBid = snapshot.data!;
-                              return Container(
-                                padding: EdgeInsets.all(8),
-                                color: Colors.green,
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      'Your bid has been accepted!',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    Text(
-                                      'Amount: \$${acceptedBid['biddingAmount']}',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    // Add more details as needed
-                                  ],
+                 SizedBox(height: 20,),
+                        if (acceptedBid != null)
+                          Container(
+                            width:  double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 20),
+                            decoration: BoxDecoration(
+                              color: Colors.green[100],
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.green),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                 Text(
+                                  '🎉Congratulations!',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.green,
+                                  ),
                                 ),
-                              );
-                            }
-
-                            return SizedBox.shrink(); // Return empty if no accepted bid
-                          },
-                        ),
+                                Text(
+                                  'Your Bid has been Accepted!',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Accepted Amount: \$${(acceptedBid!['amount'] as num).toStringAsFixed(2)}',
+                                  style:  TextStyle(fontSize: 14,color: customColor.purpleText),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Accepted At: ${DateTime.fromMillisecondsSinceEpoch(acceptedBid!['acceptedAt'] as int)}',
+                                  style:TextStyle(fontSize: 14,color: customColor.purpleText),
+                                ),
+SizedBox(height: 15,),
+ElevatedButton(onPressed: (){}, child: Text('Proceed to Next',style: TextStyle(
+  color: Colors.white
+),),
+style: ElevatedButton.styleFrom(
+  backgroundColor: customColor.purpleBlue,
+  shape:RoundedRectangleBorder(
+    borderRadius: BorderRadius.zero
+  )
+),),
+                              ],
+                            ),
+                          ),
                       ],
                     ),
                   ),

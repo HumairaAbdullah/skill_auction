@@ -322,13 +322,15 @@ class _BuyerScreenState extends State<BuyerScreen> {
                                 const EdgeInsets.only(left: 8.0, right: 8.0),
                             child: Row(
                               children: [
-                                Text(
-                                  overflow: TextOverflow.ellipsis,
-                                  skill.sellerName,
-                                  style: TextStyle(
-                                      fontSize: 17,
-                                      color: customColor.purpleBlue,
-                                      fontWeight: FontWeight.bold),
+                                Expanded(
+                                  child: Text(
+                                    overflow: TextOverflow.ellipsis,
+                                  '${skill.sellerName}',
+                                    style: TextStyle(
+                                        fontSize: 17,
+                                        color: customColor.purpleBlue,
+                                        fontWeight: FontWeight.bold),
+                                  ),
                                 ),
                               ],
                             ),
@@ -337,14 +339,11 @@ class _BuyerScreenState extends State<BuyerScreen> {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 8.0),
-                                  child: Text(
-                                    overflow: TextOverflow.ellipsis,
-                                    skill.skillTitle,
-                                    style: TextStyle(
-                                      color: customColor.purpleText,
-                                    ),
+                                child: Text(
+                                  overflow: TextOverflow.ellipsis,
+                                '  ${skill.skillTitle}',
+                                  style: TextStyle(
+                                    color: customColor.purpleText,
                                   ),
                                 ),
                               ),
@@ -357,20 +356,24 @@ class _BuyerScreenState extends State<BuyerScreen> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  Text(
-                                    overflow: TextOverflow.ellipsis,
-                                    'MinBid From:',
-                                    style: TextStyle(
-                                        color: customColor.purpleBlue),
+                                  Expanded(
+                                    child: Text(
+                                      overflow: TextOverflow.ellipsis,
+                                      'MinBid:',
+                                      style: TextStyle(
+                                          color: customColor.purpleBlue),
+                                    ),
                                   ),
                                   SizedBox(
                                     width: 10,
                                   ),
-                                  Text(
-                                    overflow: TextOverflow.ellipsis,
-                                    '\$${skill.minBid}',
-                                    style: TextStyle(
-                                      color: customColor.purpleText,
+                                  Expanded(
+                                    child: Text(
+                                      overflow: TextOverflow.ellipsis,
+                                      '\$${skill.minBid}',
+                                      style: TextStyle(
+                                        color: customColor.purpleText,
+                                      ),
                                     ),
                                   ),
                                 ]),
