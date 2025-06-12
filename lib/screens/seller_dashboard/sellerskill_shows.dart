@@ -61,7 +61,7 @@ class _SellerSkillShowState extends State<SellerSkillShow> {
                             alignment: AlignmentDirectional.topCenter,
                             children: [
                               Card(
-                                color: customColor.peach,
+                                color: customColor.peach.withOpacity(50),
                                 margin: EdgeInsets.symmetric(vertical: 6),
                                 child: ListTile(
                                   leading: skill.imagePath.isNotEmpty &&

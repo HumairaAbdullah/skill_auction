@@ -7,24 +7,15 @@ import 'package:skill_auction/payment/payment_intent.dart';
 import 'package:skill_auction/payment/reusabletext_field.dart';
 
 class firstpage extends StatefulWidget {
-  // late double totalBalance;
-  // final Future<void> Function() placeOrder;
-  //
-  // firstpage(
-  //     this.totalBalance,
-  //     {required this.placeOrder,
-  //     }
-  //     );
-
   @override
   State<firstpage> createState() => _firstpageState();
 }
 
 class _firstpageState extends State<firstpage> {
-  final DatabaseReference _ordersRef = FirebaseDatabase.instance.ref("orders");
-  final DatabaseReference _cartRef = FirebaseDatabase.instance.ref("cart");
+  final DatabaseReference _ordersRef =
+      FirebaseDatabase.instance.ref("orderdetails");
   final DatabaseReference _feedbackRef =
-  FirebaseDatabase.instance.ref("Feedback");
+      FirebaseDatabase.instance.ref("Feedback");
 
   TextEditingController amountController = TextEditingController();
   TextEditingController nameController = TextEditingController();
@@ -47,57 +38,20 @@ class _firstpageState extends State<firstpage> {
     'EUR',
     'JPY',
     'GBP',
-    'AED'
+    'AED',
   ];
   String selectedCurrency = 'PKR';
   bool hasDonated = false;
   late User currentUser;
   Map<String, dynamic>? cartItems;
 
-  Future<String?> _fetchOrderId() async {
-    try {
-      final orderSnapshot = await FirebaseDatabase.instance
-          .ref('orders')
-          .orderByKey()
-          .limitToLast(1)
-          .once();
-      final orderData = orderSnapshot.snapshot.value as Map?;
-      final latestOrderId = orderData?.keys.last;
-      return latestOrderId;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to fetch order ID: $e')),
-      );
-      return null;
-    }
-  }
-
-  Future<void> fetchCartItems() async {
-    String userId = currentUser.uid;
-    final userCartRef =
-    _cartRef.child(userId); // Reference to the current user's cart
-    final snapshot =
-    await userCartRef.once(); // Get all cart items for the user
-    // final userCartRef = _cartRef;
-    // final snapshot = await userCartRef.orderByChild('uid').equalTo(currentUser.uid).once();
-    if (snapshot.snapshot.value != null) {
-      setState(() {
-        cartItems = Map<String, dynamic>.from(snapshot.snapshot.value as Map);
-      });
-    } else {
-      setState(() {
-        cartItems = {};
-      });
-    }
-  }
-
   Future<void> initPaymentSheet() async {
     try {
       // 1. create payment intent on the server
       final data = await cretaePaymentIntent(
-        // sellerId: 'sellerId',
-        //   buyerId: 'buyerId',
-        //   skillId: 'skillId',
+          // sellerId: 'sellerId',
+          //   buyerId: 'buyerId',
+          //   skillId: 'skillId',
           amount: (int.parse(amountController.text) * 100).toString(),
           currency: selectedCurrency,
           name: nameController.text,
@@ -130,13 +84,73 @@ class _firstpageState extends State<firstpage> {
       rethrow;
     }
   }
-
-  Future<void> _savePaymentDetails(String orderId) async {
+  Future<void> fetchOrderAmount() async {
     try {
-      final orderRef = _ordersRef.child(orderId);
-      final _paymentRef = orderRef.child('payment_details');
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        debugPrint('User not authenticated');
+        return;
+      }
+
+      final orderQuery = _ordersRef.orderByChild('buyerId').equalTo(currentUser.uid);
+      final DatabaseEvent event = await orderQuery.once();
+      final DataSnapshot snapshot = event.snapshot;
+
+      if (!snapshot.exists) {
+        debugPrint('No orders found for user');
+        return;
+      }
+
+      dynamic ordersData = snapshot.value;
+      if (ordersData is! Map) {
+        debugPrint('Invalid orders data format');
+        return;
+      }
+
+      Map<String, dynamic> orders = Map<String, dynamic>.from(ordersData);
+      String? latestOrderKey;
+      int? latestTimestamp;
+
+      orders.forEach((key, value) {
+        if (value is Map && value['createdAt'] != null) {
+          int orderTimestamp = value['createdAt'] is int
+              ? value['createdAt']
+              : DateTime.parse(value['createdAt']).millisecondsSinceEpoch;
+
+          if (latestTimestamp == null || orderTimestamp > latestTimestamp!) {
+            latestTimestamp = orderTimestamp;
+            latestOrderKey = key;
+          }
+        }
+      });
+
+      if (latestOrderKey != null) {
+        Map<String, dynamic> latestOrder = Map<String, dynamic>.from(orders[latestOrderKey]!);
+        if (latestOrder['amount'] != null) {
+          debugPrint('Updating amount to: ${latestOrder['amount']}');
+          setState(() {
+            amountController.text = latestOrder['amount'].toString();
+          });
+        } else {
+          debugPrint('No amount in latest order');
+        }
+      } else {
+        debugPrint('No valid orders found');
+      }
+    } catch (e) {
+      debugPrint('Error fetching order amount: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to fetch order amount: $e')),
+      );
+    }
+  }
+
+  Future<void> _savePaymentDetails(String entryId) async {
+    try {
+      final orderRef = _ordersRef.child(entryId);
+      final _paymentRef = orderRef.child('Orderdetails');
       await _paymentRef.update({
-        'orderId': orderId,
+        'orderId': entryId,
         'amount': amountController.text,
         'currency': selectedCurrency,
         'name': nameController.text,
@@ -173,111 +187,12 @@ class _firstpageState extends State<firstpage> {
       );
     }
   }
-
-  // Future<void> showFeedbackDialog(String orderId) async {
-  //   double rating = 0.0;
-  //   TextEditingController feedbackController = TextEditingController();
-  //
-  //   return showDialog(
-  //     context: context,
-  //     builder: (context) {
-  //       return AlertDialog(
-  //         title: Text('Rate your items'),
-  //         content: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             RatingBar.builder(
-  //               initialRating: 0,
-  //               minRating: 1,
-  //               direction: Axis.horizontal,
-  //               allowHalfRating: true,
-  //               itemCount: 5,
-  //               itemBuilder: (context, _) => Icon(
-  //                 Icons.star,
-  //                 color: Colors.amber,
-  //               ),
-  //               onRatingUpdate: (newRating) {
-  //                 rating = newRating;
-  //               },
-  //             ),
-  //             SizedBox(height: 10),
-  //             TextField(
-  //               controller: feedbackController,
-  //               decoration: InputDecoration(hintText: 'Leave your feedback'),
-  //             ),
-  //           ],
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () {
-  //               Navigator.pop(context); // Close dialog
-  //             },
-  //             child: Text('Cancel'),
-  //           ),
-  //           TextButton(
-  //             onPressed: () async {
-  //               final feedback = feedbackController.text.trim();
-  //               if (rating > 0 && feedback.isNotEmpty) {
-  //                 await saveFeedback(orderId, rating, feedback, currentUser.uid);
-  //                 Navigator.pop(context); // Close dialog
-  //                 Navigator.push(
-  //                   context,
-  //                   MaterialPageRoute(
-  //                     builder: (context) => ResponsePage(orderId),
-  //                   ),
-  //                 );
-  //               } else {
-  //                 // Show a message if feedback or rating is not provided
-  //                 ScaffoldMessenger.of(context).showSnackBar(
-  //                   SnackBar(
-  //                     content: Text('Please provide a rating and feedback'),
-  //                     backgroundColor: Colors.orange,
-  //                   ),
-  //                 );
-  //               }
-  //             },
-  //             child: Text('Submit'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
-
-  Future<void> saveFeedback(
-      String orderId, double rating, String feedback, String userId) async {
-    if (cartItems != null && cartItems!.isNotEmpty) {
-      cartItems!.forEach((key, item) async {
-        final itemId = item['itemId'] ??
-            'unknownItemId'; // Handle potential missing fields
-        final adminId = item['adminId'] as String? ??
-            'unknownAdminId'; // Ensure `adminId` exists
-        final feedbackData = {
-          'orderId': orderId,
-          'itemId': itemId,
-          'adminId': adminId,
-          'rating': rating,
-          'feedback': feedback,
-          'timestamp': DateTime.now().toIso8601String(),
-          'userId': userId
-        };
-
-        // Push feedback to the Feedback node
-        try {
-          await _feedbackRef.push().set(feedbackData);
-          print("Feedback saved successfully for $itemId");
-        } catch (e) {
-          print("Failed to save feedback for $itemId: $e");
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to save feedback: $e')),
-          );
-        }
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('No cart items found to provide feedback on.')),
-      );
-    }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchOrderAmount();
+    amountController.text = '0';
   }
 
   @override
@@ -300,46 +215,49 @@ class _firstpageState extends State<firstpage> {
                       SizedBox(
                         height: 6,
                       ),
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: ReusableTextField(
-                              formkey: formkey,
-                              controller: amountController,
-                              isNumber: true,
-                              title: "Total Order Amount",
-                              hint: "Order Amount",
-                              // readOnly: true,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          DropdownMenu<String>(
-                            inputDecorationTheme: InputDecorationTheme(
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 20, horizontal: 0),
-                              enabledBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade600,
-                                ),
-                              ),
-                            ),
-                            initialSelection: currencyList.first,
-                            onSelected: (String? value) {
-                              // This is called when the user selects an item.
-                              setState(() {
-                                selectedCurrency = value!;
-                              });
-                            },
-                            dropdownMenuEntries: currencyList
-                                .map<DropdownMenuEntry<String>>((String value) {
-                              return DropdownMenuEntry<String>(
-                                  value: value, label: value);
-                            }).toList(),
-                          )
-                        ],
+                      // Row(
+                      //   children: [
+                      //     Expanded(
+                      //       flex: 5,
+                      //       child: ReusableTextField(
+                      //         formkey: formkey,
+                      //         controller: amountController,
+                      //         isNumber: true,
+                      //         title: "Total Order Amount",
+                      //         hint: "Order Amount",
+                      //         // readOnly: true,
+                      //       ),
+                      //     ),
+                      //     SizedBox(
+                      //       width: 10,
+                      //     ),
+                      //     DropdownMenu<String>(
+                      //       inputDecorationTheme: InputDecorationTheme(
+                      //         contentPadding: EdgeInsets.symmetric(
+                      //             vertical: 20, horizontal: 0),
+                      //         enabledBorder: UnderlineInputBorder(
+                      //           borderSide: BorderSide(
+                      //             color: Colors.grey.shade600,
+                      //           ),
+                      //         ),
+                      //       ),
+                      //       initialSelection: currencyList.first,
+                      //       onSelected: (String? value) {
+                      //         // This is called when the user selects an item.
+                      //         setState(() {
+                      //           selectedCurrency = value!;
+                      //         });
+                      //       },
+                      //       dropdownMenuEntries: currencyList
+                      //           .map<DropdownMenuEntry<String>>((String value) {
+                      //         return DropdownMenuEntry<String>(
+                      //             value: value, label: value);
+                      //       }).toList(),
+                      //     )
+                      //   ],
+                      // ),
+                      Container(
+                        width: double.infinity,
                       ),
                       SizedBox(
                         height: 10,
@@ -457,38 +375,7 @@ class _firstpageState extends State<firstpage> {
                                   ),
                                 );
 
-                                // Call placeOrder after successful payment
-
-                                // await widget.placeOrder();
-
-                                // Fetch the orderId
-                                final orderId = await _fetchOrderId();
-                                if (orderId == null) {
-                                  return; // Stop processing if no orderId is found
-                                }
-
-                                // Save payment details to Firebase with the fetched orderId
-                                await _savePaymentDetails(orderId);
-                                // await showFeedbackDialog(orderId); // Ensure dialog is shown
-
-                                // Clear text fields
-                                nameController.clear();
-                                addressController.clear();
-                                cityController.clear();
-                                stateController.clear();
-                                countryController.clear();
-                                pincodeController.clear();
-
-                                // Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) => ResponsePage(
-                                //
-                                //         orderId,
-                                //
-                                //     ),
-                                //   ),
-                                // );
+                                return; // Stop processing if no orderId is found
                               } catch (e) {
                                 print("payment sheet failed: $e");
                                 ScaffoldMessenger.of(context).showSnackBar(

@@ -837,7 +837,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
                                 ElevatedButton(
                                   onPressed: () {
                                     Navigator.push(context, MaterialPageRoute(builder: (context){
-                                      return CartPage();
+                                      return CartPage(skillId: widget.skillId);
                                     }));
 
                                   },
