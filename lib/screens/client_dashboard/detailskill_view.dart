@@ -15,6 +15,7 @@ import 'package:skill_auction/firebase_model/sellercrud.dart';
 import 'package:skill_auction/firebase_model/skill_model.dart';
 import 'package:skill_auction/custom_widgets/custom_color.dart';
 import 'package:skill_auction/firebase_model/user_model.dart';
+import 'package:skill_auction/screens/client_dashboard/cart_page.dart';
 import 'package:skill_auction/screens/client_dashboard/sellerprofile_forbuyers.dart';
 import 'package:skill_auction/screens/seller_dashboard/seller_information.dart';
 
@@ -438,6 +439,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
       return result;
     });
   }
+
   Future<Map<String, dynamic>?> fetchAcceptedBid() async {
     try {
       final currentUser = auth.currentUser;
@@ -464,7 +466,8 @@ class _DetailSkillViewState extends State<DetailSkillView> {
           if (bid['skillId'] == widget.skillId) {
             return {
               ...bid,
-              'acceptedBidId': entry.key.toString(), // The key from AcceptedBids node
+              'acceptedBidId':
+                  entry.key.toString(), // The key from AcceptedBids node
             };
           }
         }
@@ -476,6 +479,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
       return null;
     }
   }
+
   Future<void> checkForAcceptedBid() async {
     setState(() => isCheckingAcceptedBid = true);
     try {
@@ -780,10 +784,12 @@ class _DetailSkillViewState extends State<DetailSkillView> {
                             return buildBidStatus(snapshot);
                           },
                         ),
-                 SizedBox(height: 20,),
+                        SizedBox(
+                          height: 20,
+                        ),
                         if (acceptedBid != null)
                           Container(
-                            width:  double.infinity,
+                            width: double.infinity,
                             padding: const EdgeInsets.all(12),
                             margin: const EdgeInsets.only(bottom: 20),
                             decoration: BoxDecoration(
@@ -795,7 +801,7 @@ class _DetailSkillViewState extends State<DetailSkillView> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                 Text(
+                                Text(
                                   '🎉Congratulations!',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
@@ -814,23 +820,36 @@ class _DetailSkillViewState extends State<DetailSkillView> {
                                 const SizedBox(height: 8),
                                 Text(
                                   'Accepted Amount: \$${(acceptedBid!['amount'] as num).toStringAsFixed(2)}',
-                                  style:  TextStyle(fontSize: 14,color: customColor.purpleText),
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: customColor.purpleText),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   'Accepted At: ${DateTime.fromMillisecondsSinceEpoch(acceptedBid!['acceptedAt'] as int)}',
-                                  style:TextStyle(fontSize: 14,color: customColor.purpleText),
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: customColor.purpleText),
                                 ),
-SizedBox(height: 15,),
-ElevatedButton(onPressed: (){}, child: Text('Proceed to Next',style: TextStyle(
-  color: Colors.white
-),),
-style: ElevatedButton.styleFrom(
-  backgroundColor: customColor.purpleBlue,
-  shape:RoundedRectangleBorder(
-    borderRadius: BorderRadius.zero
-  )
-),),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.push(context, MaterialPageRoute(builder: (context){
+                                      return CartPage();
+                                    }));
+
+                                  },
+                                  child: Text(
+                                    'Proceed to Next',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: customColor.purpleBlue,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.zero)),
+                                ),
                               ],
                             ),
                           ),

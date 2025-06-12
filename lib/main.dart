@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_auction/custom_widgets/custom_snackbar.dart';
 import 'package:skill_auction/firebase_model/acceptedbid.dart';
@@ -22,6 +24,9 @@ import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+  Stripe.publishableKey = dotenv.env["STRIPE_PUBLISH_KEY"]!;
+  await Stripe.instance.applySettings();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
